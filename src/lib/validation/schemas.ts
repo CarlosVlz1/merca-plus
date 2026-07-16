@@ -1,9 +1,25 @@
 import { z } from 'zod'
 
-export const signUpSchema = z.object({
-  email: z.string().email('Correo inválido'),
-  password: z.string().min(6, 'La contraseña debe tener al menos 6 caracteres'),
-})
+export const signUpSchema = z
+  .object({
+    fullName: z.string().min(2, 'El nombre debe tener al menos 2 caracteres').max(100),
+    phone: z
+      .string()
+      .regex(/^\+?[0-9\s\-().]{7,20}$/, 'Teléfono inválido')
+      .optional()
+      .or(z.literal('')),
+    email: z.string().email('Correo inválido'),
+    password: z
+      .string()
+      .min(8, 'Mínimo 8 caracteres')
+      .regex(/[A-Z]/, 'Debe incluir al menos una mayúscula')
+      .regex(/[0-9]/, 'Debe incluir al menos un número'),
+    confirmPassword: z.string().min(1, 'Confirma tu contraseña'),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: 'Las contraseñas no coinciden',
+    path: ['confirmPassword'],
+  })
 
 export const signInSchema = z.object({
   email: z.string().email('Correo inválido'),
