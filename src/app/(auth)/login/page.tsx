@@ -8,6 +8,7 @@ import Button from '@/components/ui/button'
 import Input from '@/components/ui/input'
 import Alert from '@/components/ui/alert'
 import { cn } from '@/lib/cn'
+import { Logo } from '@/components/icons'
 
 const PASSWORD_RULES = [
   { label: 'Mínimo 8 caracteres', test: (p: string) => p.length >= 8 },
@@ -113,8 +114,8 @@ export default function LoginPage() {
     <div className="flex flex-col gap-6">
       {/* Logo */}
       <div className="text-center">
-        <div className="mx-auto mb-4 flex size-16 items-center justify-center rounded-2xl bg-green-600 text-3xl shadow-lg shadow-green-600/30">
-          🛒
+        <div className="flex justify-center mb-4 drop-shadow-lg drop-shadow-green-600/30">
+          <Logo size={64} />
         </div>
         <h1 className="text-2xl font-bold tracking-tight text-gray-900">Merca+</h1>
         <p className="mt-1 text-sm text-gray-500">
