@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { cn } from '@/lib/cn'
-import { HomeIcon, CartIcon, GridIcon, TrendingIcon, LogOutIcon } from './icons'
+import { HomeIcon, CartIcon, GridIcon, TrendingIcon, LogOutIcon, Logo } from './icons'
 
 const navItems = [
   { href: '/dashboard', label: 'Inicio',    Icon: HomeIcon },
@@ -29,6 +29,7 @@ export default function AppNav() {
       {/* Top header */}
       <header className="sticky top-0 z-20 flex items-center justify-between border-b border-gray-100 bg-white/80 px-4 py-3 backdrop-blur-md">
         <div className="flex items-center gap-2">
+          <Logo size={28} />
           <span className="text-lg font-bold tracking-tight text-green-600">Merca+</span>
           <span className="rounded-full bg-green-100 px-1.5 py-0.5 text-[10px] font-bold text-green-700 uppercase tracking-wide">
             Beta

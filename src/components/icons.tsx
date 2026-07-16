@@ -301,3 +301,34 @@ export function UserPlusIcon({ className, size = 20 }: IconProps) {
     </svg>
   )
 }
+
+interface LogoProps {
+  size?: number
+  className?: string
+}
+
+export function Logo({ size = 40, className }: LogoProps) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width={size}
+      height={size}
+      viewBox="0 0 32 32"
+      className={className}
+    >
+      <rect width="32" height="32" rx="8" fill="#16A34A" />
+      <path
+        d="M6 8h2.5l2.8 9.5a1.5 1.5 0 0 0 1.4 1H22a1.5 1.5 0 0 0 1.4-1L25 11H10"
+        stroke="white"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        fill="none"
+      />
+      <circle cx="13" cy="23" r="1.5" fill="white" />
+      <circle cx="21" cy="23" r="1.5" fill="white" />
+      <line x1="18" y1="15" x2="22" y2="15" stroke="white" strokeWidth="1.8" strokeLinecap="round" />
+      <line x1="20" y1="13" x2="20" y2="17" stroke="white" strokeWidth="1.8" strokeLinecap="round" />
+    </svg>
+  )
+}
