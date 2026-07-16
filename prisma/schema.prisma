@@ -1,0 +1,111 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum MemberRole {
+  OWNER
+  MEMBER
+}
+
+enum ListStatus {
+  ACTIVE
+  CLOSED
+}
+
+model Household {
+  id        String   @id @default(uuid())
+  name      String
+  createdAt DateTime @default(now()) @map("created_at")
+  members   HouseholdMember[]
+  items     Item[]
+  lists     ShoppingList[]
+  invites   HouseholdInvite[]
+
+  @@map("households")
+}
+
+model HouseholdMember {
+  id          String     @id @default(uuid())
+  householdId String     @map("household_id")
+  household   Household  @relation(fields: [householdId], references: [id])
+  userId      String     @map("user_id")
+  role        MemberRole @default(MEMBER)
+  joinedAt    DateTime   @default(now()) @map("joined_at")
+
+  @@unique([householdId, userId])
+  @@map("household_members")
+}
+
+model HouseholdInvite {
+  id              String    @id @default(uuid())
+  householdId     String    @map("household_id")
+  household       Household @relation(fields: [householdId], references: [id])
+  code            String    @unique
+  createdByUserId String    @map("created_by_user_id")
+  expiresAt       DateTime  @map("expires_at")
+  usedByUserId    String?   @map("used_by_user_id")
+  usedAt          DateTime? @map("used_at")
+  createdAt       DateTime  @default(now()) @map("created_at")
+
+  @@map("household_invites")
+}
+
+model Item {
+  id           String    @id @default(uuid())
+  householdId  String    @map("household_id")
+  household    Household @relation(fields: [householdId], references: [id])
+  name         String
+  category     String
+  unit         String?
+  lastPrice    Decimal?  @map("last_price") @db.Decimal(10, 2)
+  createdAt    DateTime  @default(now()) @map("created_at")
+  listItems    ShoppingListItem[]
+  priceHistory PriceHistory[]
+
+  @@unique([householdId, name, category])
+  @@map("items")
+}
+
+model ShoppingList {
+  id          String     @id @default(uuid())
+  householdId String     @map("household_id")
+  household   Household  @relation(fields: [householdId], references: [id])
+  status      ListStatus @default(ACTIVE)
+  createdAt   DateTime   @default(now()) @map("created_at")
+  closedAt    DateTime?  @map("closed_at")
+  items       ShoppingListItem[]
+
+  @@map("shopping_lists")
+}
+
+model ShoppingListItem {
+  id              String       @id @default(uuid())
+  listId          String       @map("list_id")
+  list            ShoppingList @relation(fields: [listId], references: [id])
+  itemId          String       @map("item_id")
+  item            Item         @relation(fields: [itemId], references: [id])
+  quantity        Decimal      @default(1) @db.Decimal(10, 2)
+  price           Decimal?     @db.Decimal(10, 2)
+  checked         Boolean      @default(false)
+  addedByUserId   String       @map("added_by_user_id")
+  checkedByUserId String?      @map("checked_by_user_id")
+  createdAt       DateTime     @default(now()) @map("created_at")
+
+  @@unique([listId, itemId])
+  @@map("shopping_list_items")
+}
+
+model PriceHistory {
+  id         String   @id @default(uuid())
+  itemId     String   @map("item_id")
+  item       Item     @relation(fields: [itemId], references: [id])
+  price      Decimal  @db.Decimal(10, 2)
+  recordedAt DateTime @default(now()) @map("recorded_at")
+
+  @@map("price_history")
+}
