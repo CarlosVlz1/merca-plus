@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from 'next'
 import { Geist } from 'next/font/google'
 import './globals.css'
+import ServiceWorkerRegister from '@/components/service-worker-register'
+import IOSInstallBanner from '@/components/ios-install-banner'
 
 const geist = Geist({
   variable: '--font-geist',
@@ -10,7 +12,6 @@ const geist = Geist({
 export const metadata: Metadata = {
   title: { default: 'Merca+', template: '%s | Merca+' },
   description: 'Organiza las compras de tu hogar de forma simple y colaborativa.',
-  manifest: '/manifest.json',
   appleWebApp: { capable: true, statusBarStyle: 'default', title: 'Merca+' },
 }
 
@@ -26,6 +27,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="es" className={geist.variable}>
       <body className="min-h-dvh bg-[#F7F8F5] text-gray-900 antialiased">
+        <ServiceWorkerRegister />
+        <IOSInstallBanner />
         {children}
       </body>
     </html>
