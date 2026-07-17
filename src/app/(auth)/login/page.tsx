@@ -50,7 +50,8 @@ export default function LoginPage() {
   const router = useRouter()
   const supabase = createClient()
   const [mode, setMode] = useState<Mode>('login')
-  const [fullName, setFullName] = useState('')
+  const [firstName, setFirstName] = useState('')
+  const [lastName, setLastName] = useState('')
   const [dialCode, setDialCode] = useState('+57')
   const [phoneNumber, setPhoneNumber] = useState('')
   const [email, setEmail] = useState('')
@@ -88,7 +89,7 @@ export default function LoginPage() {
       }
     } else {
       const phone = phoneNumber.trim()
-      const result = signUpSchema.safeParse({ fullName, phone, email, password, confirmPassword })
+      const result = signUpSchema.safeParse({ firstName, lastName, phone, email, password, confirmPassword })
       if (!result.success) {
         setError(result.error.issues[0].message)
         return
@@ -99,8 +100,8 @@ export default function LoginPage() {
           email,
           password,
           options: {
-            data: {
-              full_name: fullName.trim(),
+              data: {
+              full_name: `${firstName.trim()} ${lastName.trim()}`,
               phone: phoneNumber.trim() ? `${dialCode} ${phoneNumber.trim()}` : null,
             },
           },
@@ -153,12 +154,21 @@ export default function LoginPage() {
             {mode === 'register' && (
               <>
                 <Input
-                  label="Nombre completo"
+                  label="Nombre(s)"
                   type="text"
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  placeholder="Ana García"
-                  autoComplete="name"
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                  placeholder="Ana María"
+                  autoComplete="given-name"
+                  required
+                />
+                <Input
+                  label="Apellido(s)"
+                  type="text"
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                  placeholder="García López"
+                  autoComplete="family-name"
                   required
                 />
                 <PhoneInput

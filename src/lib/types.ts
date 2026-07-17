@@ -40,6 +40,7 @@ export interface ShoppingList {
   id: string
   household_id: string
   status: ListStatus
+  total: number
   created_at: string
   closed_at: string | null
 }

@@ -126,69 +126,95 @@ export default function HistoryPage() {
             const closedDate = cl.closed_at ?? cl.created_at
 
             return (
-              <div key={cl.id} className="rounded-2xl bg-white shadow-sm border border-gray-100 overflow-hidden">
-                {/* List header */}
-                <button
-                  onClick={() => setExpandedListId(isExpanded ? null : cl.id)}
-                  className="w-full flex items-center gap-3 px-4 py-3.5 text-left hover:bg-gray-50/80 transition-colors"
-                >
-                  <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-green-100 text-green-600 text-base">
-                    ✅
-                  </span>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-sm text-gray-800">
-                      Lista del {formatDateShort(closedDate)}
-                    </p>
-                    <p className="text-xs text-gray-400 mt-0.5">
-                      {totalItems} producto{totalItems !== 1 ? 's' : ''} · {checkedItems.length} obtenido{checkedItems.length !== 1 ? 's' : ''}
-                    </p>
-                  </div>
-                  <span className={cn(
-                    'text-gray-300 transition-transform duration-200 text-xs',
-                    isExpanded && 'rotate-180',
-                  )}>
-                    ▼
-                  </span>
-                </button>
+              {(() => {
+                // Prefer persisted total (>0); fall back to calculating from items
+                const listTotal = Number(cl.total) > 0
+                  ? Number(cl.total)
+                  : cl.items.reduce((sum, li) => {
+                      if (li.price != null && li.price > 0) return sum + Number(li.price) * Number(li.quantity)
+                      return sum
+                    }, 0)
 
-                {/* Expanded items */}
-                {isExpanded && (
-                  <ul className="border-t border-gray-100">
-                    {cl.items.map((li, idx) => (
-                      <li
-                        key={li.id}
-                        className={cn(
-                          'flex items-center gap-3 px-4 py-2.5',
-                          li.checked ? 'bg-green-50/30' : 'bg-white',
-                          idx !== cl.items.length - 1 && 'border-b border-gray-50',
+                return (
+                  <div key={cl.id} className="rounded-2xl bg-white shadow-sm border border-gray-100 overflow-hidden">
+                    {/* List header */}
+                    <button
+                      onClick={() => setExpandedListId(isExpanded ? null : cl.id)}
+                      className="w-full flex items-center gap-3 px-4 py-3.5 text-left hover:bg-gray-50/80 transition-colors"
+                    >
+                      <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-green-100 text-green-600 text-base">
+                        ✅
+                      </span>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-semibold text-sm text-gray-800">
+                          Lista del {formatDateShort(closedDate)}
+                        </p>
+                        <p className="text-xs text-gray-400 mt-0.5">
+                          {totalItems} producto{totalItems !== 1 ? 's' : ''} · {checkedItems.length} obtenido{checkedItems.length !== 1 ? 's' : ''}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-2 shrink-0">
+                        {listTotal > 0 && (
+                          <span className="text-sm font-bold text-green-600">{formatPrice(listTotal)}</span>
                         )}
-                      >
-                        <span className={cn(
-                          'flex size-5 shrink-0 items-center justify-center rounded-full border-2',
-                          li.checked ? 'border-green-500 bg-green-500 text-white' : 'border-gray-200',
-                        )}>
-                          {li.checked && <CheckIcon size={10} />}
-                        </span>
-                        <span className={cn(
-                          'flex-1 text-sm',
-                          li.checked ? 'line-through text-gray-400' : 'text-gray-700',
-                        )}>
-                          {li.item.name}
-                          {li.item.unit && (
-                            <span className="text-gray-400 font-normal"> · {li.item.unit}</span>
-                          )}
-                          <span className="text-gray-300"> ×{Number(li.quantity)}</span>
-                        </span>
-                        {li.price != null && li.price > 0 && (
-                          <span className="text-xs font-semibold text-green-600 shrink-0">
-                            {formatPrice(Number(li.price))}
-                          </span>
+                        <span className={cn('text-gray-300 transition-transform duration-200 text-xs', isExpanded && 'rotate-180')}>▼</span>
+                      </div>
+                    </button>
+
+                    {/* Expanded items */}
+                    {isExpanded && (
+                      <>
+                        <ul className="border-t border-gray-100">
+                          {cl.items.map((li, idx) => {
+                            const subtotal = li.price != null && li.price > 0
+                              ? Number(li.price) * Number(li.quantity)
+                              : null
+                            return (
+                              <li
+                                key={li.id}
+                                className={cn(
+                                  'flex items-center gap-3 px-4 py-2.5',
+                                  li.checked ? 'bg-green-50/30' : 'bg-white',
+                                  idx !== cl.items.length - 1 && 'border-b border-gray-50',
+                                )}
+                              >
+                                <span className={cn(
+                                  'flex size-5 shrink-0 items-center justify-center rounded-full border-2',
+                                  li.checked ? 'border-green-500 bg-green-500 text-white' : 'border-gray-200',
+                                )}>
+                                  {li.checked && <CheckIcon size={10} />}
+                                </span>
+                                <div className="flex-1 min-w-0">
+                                  <p className={cn('text-sm', li.checked ? 'line-through text-gray-400' : 'text-gray-700')}>
+                                    {li.item.name}
+                                    {li.item.unit && <span className="text-gray-400 font-normal"> · {li.item.unit}</span>}
+                                  </p>
+                                  {li.price != null && li.price > 0 && (
+                                    <p className="text-xs text-gray-400 mt-0.5">
+                                      {formatPrice(Number(li.price))} × {Number(li.quantity)}
+                                    </p>
+                                  )}
+                                </div>
+                                {subtotal != null && (
+                                  <span className="text-sm font-semibold text-green-600 shrink-0">
+                                    {formatPrice(subtotal)}
+                                  </span>
+                                )}
+                              </li>
+                            )
+                          })}
+                        </ul>
+                        {listTotal > 0 && (
+                          <div className="flex items-center justify-between border-t border-gray-100 bg-green-50 px-4 py-3">
+                            <span className="text-sm font-semibold text-green-800">Total de la lista</span>
+                            <span className="text-base font-bold text-green-700">{formatPrice(listTotal)}</span>
+                          </div>
                         )}
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </div>
+                      </>
+                    )}
+                  </div>
+                )
+              })()}
             )
           })
         )}
