@@ -10,14 +10,14 @@ App web (con soporte PWA) para que un hogar reemplace el cuaderno físico de mer
 
 | Capa | Herramienta |
 |---|---|
-| Frontend | Next.js 15 (App Router), TypeScript, Tailwind |
+| Frontend | Next.js 16 (App Router), TypeScript, Tailwind v4 |
 | Backend | Supabase (Postgres, Auth, Realtime, Row Level Security, Edge Functions) |
 | Esquema/migraciones | Prisma (`schema.prisma` + `prisma migrate`) |
 | Acceso a datos en runtime | `supabase-js` (sin API REST propia; RLS es la capa de seguridad) |
-| Validación | `zod`, compartido entre formularios de frontend y Edge Functions |
+| Validación | `zod`, compartido entre formularios de frontend |
 | Tests unitarios | Vitest, solo para funciones puras en `/lib` |
 | Hosting | Vercel (frontend) + Supabase Cloud (backend) |
-| PWA | `manifest.json` + service worker |
+| PWA | `src/app/manifest.ts` + `public/sw.js` + `ServiceWorkerRegister` |
 
 ## 3. Modelo de datos
 
@@ -102,6 +102,7 @@ model ShoppingList {
   householdId String     @map("household_id")
   household   Household  @relation(fields: [householdId], references: [id])
   status      ListStatus @default(ACTIVE)
+  total       Decimal?   @default(0) @map("total") @db.Decimal(12, 2) // se persiste al cerrar la lista
   createdAt   DateTime   @default(now()) @map("created_at")
   closedAt    DateTime?  @map("closed_at")
   items       ShoppingListItem[]
@@ -206,9 +207,15 @@ Igual patrón (función `SECURITY DEFINER`) para `create_household(name text)`, 
 Cada bloque es el contrato mínimo que un agente necesita para implementar la pantalla sin inventar decisiones.
 
 **Login / registro**
-- `supabase.auth.signUp({ email, password })`
+- `supabase.auth.signUp({ email, password, options: { data: { full_name, phone } } })`
+  - `full_name` = `"${firstName} ${lastName}"` (dos campos separados en el formulario)
+  - `phone` = `"${dialCode} ${number}"` (selector de código de país + número)
 - `supabase.auth.signInWithPassword({ email, password })`
 - Errores a mapear: `user_already_exists` → "Ese correo ya tiene una cuenta.", credenciales inválidas → "Correo o contraseña incorrectos."
+- Validaciones en el esquema Zod (`signUpSchema`):
+  - `firstName` mín. 2 chars, `lastName` mín. 2 chars
+  - `password` mín. 8 chars, al menos 1 mayúscula y 1 número
+  - `confirmPassword` debe coincidir con `password`
 
 **Crear hogar**
 - `supabase.rpc('create_household', { name })`
@@ -225,30 +232,38 @@ Cada bloque es el contrato mínimo que un agente necesita para implementar la pa
 **Checklist / lista activa**
 - Obtener lista activa: `supabase.from('shopping_lists').select('*').eq('household_id', householdId).eq('status', 'ACTIVE').maybeSingle()` — si es `null`, crear una nueva.
 - Marcar/editar ítem: `upsert` en `shopping_list_items` sobre `(list_id, item_id)`.
+- Al agregar ítem: usar `.select('*, item:items(*)')` para obtener detalles del ítem y actualizar el estado local directamente (sin recargar la página).
+- Total estimado: calculado en tiempo real desde `priceInputs` (estado local), no desde `shopping_list_items.price`.
+- Cerrar lista: guarda precios en `price_history`, actualiza `items.last_price`, persiste el total calculado en `shopping_lists.total`, cambia `status` a `'CLOSED'`.
 - Suscripción Realtime (fase 3): `supabase.channel('list:' + listId).on('postgres_changes', { event: '*', schema: 'public', table: 'shopping_list_items', filter: 'list_id=eq.' + listId }, handler).subscribe()`
 
 **Historial**
-- `supabase.from('price_history').select('*').eq('item_id', itemId).order('recorded_at')`
+- Listas completadas: `supabase.from('shopping_lists').select('*, items:shopping_list_items(*, item:items(*))').eq('household_id', householdId).eq('status', 'CLOSED').order('closed_at', { ascending: false })`
+- El total de cada lista usa `shopping_lists.total` si es > 0; si no, se recalcula desde los ítems.
+- Historial de precios por ítem: `supabase.from('price_history').select('*').eq('item_id', itemId).order('recorded_at')`
 
 ## 6. Formato del texto para WhatsApp
 
 Función pura `formatListForWhatsApp(items: ShoppingListItemWithDetails[]): string`. Reglas:
-- Solo incluye ítems con `checked = true`.
-- Agrupados por `category`, en el orden en que aparecen en el catálogo.
-- Una línea por ítem: `- {nombre} x{cantidad}`. Sin precios (se registran al comprar, no antes).
+- Solo incluye ítems con `checked = false` (pendientes, no obtenidos aún).
+- Agrupados por `category`.
+- Una línea por ítem: `*{nombre}*` si tiene unidad → `*{nombre} ({unit})*`, con cantidad al lado.
 - Sin categorías vacías.
+- Pie de mensaje con "Merca+ 🛒".
 
 Ejemplo de salida:
 
 ```
-Lista de mercado
+Lista de mercado 🛒
 
-Lácteos
-- Leche entera (1 lt) x2
-- Queso costeño x1
+🥛 Lácteos
+• *Leche entera (1 lt)* x2
+• *Queso costeño* x1
 
-Frutas y verduras
-- Tomate (libra) x3
+🥬 Frutas y verduras
+• *Tomate (libra)* x3
+
+_Enviado desde Merca+ 🛒_
 ```
 
 ## 7. Manejo de errores y estados
@@ -256,17 +271,22 @@ Frutas y verduras
 - Toda pantalla que lea datos maneja tres estados explícitos: `loading`, `error`, `ready` (una lista vacía es un `ready` con 0 elementos, no un estado aparte).
 - Los errores de Supabase nunca se muestran crudos al usuario — se mapean a un mensaje corto en español (ver ejemplos en la sección 5).
 - Mensajes de confirmación sin "Error:" ni signos de exclamación: "No se pudo guardar el precio. Intenta de nuevo."
+- Sistema de toasts (`ToastContext`) para feedback de operaciones asíncronas (éxito, error, advertencia).
+- `src/app/error.tsx` como boundary global para errores inesperados de React.
+- `HouseholdErrorBanner` para mostrar errores de carga del contexto de hogar.
 
 ## 8. Variables de entorno y despliegue
 
 ```
 NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_ANON_KEY=
-SUPABASE_SERVICE_ROLE_KEY=   # solo en Edge Functions/servidor, nunca en el cliente
+SUPABASE_SERVICE_ROLE_KEY=   # solo en servidor, nunca en el cliente
 DATABASE_URL=                # para `prisma migrate`, apunta al Postgres de Supabase
 ```
 
 Despliegue: frontend en Vercel conectado al repo (variables públicas en el dashboard de Vercel); backend en Supabase Cloud, migraciones aplicadas con `prisma migrate deploy` apuntando a `DATABASE_URL`.
+
+Autenticación: URL del sitio configurada en Supabase → Authentication → URL Configuration → Site URL. Agregar también la URL local (`http://localhost:3000/**`) en Redirect URLs.
 
 ## 9. Testing mínimo
 
@@ -277,23 +297,63 @@ Dado el tamaño del proyecto, no se exige suite exhaustiva:
 ## 10. Estructura de carpetas
 
 ```
-/app
-  /(auth)/login
-  /(auth)/join/[code]
-  /(app)/dashboard
-  /(app)/list/[listId]
-  /(app)/history
-/lib
-  supabase/client.ts
-  supabase/server.ts
-  whatsapp/format-list.ts
-  validation/schemas.ts
-/components
-  checklist/
-  list-item-row.tsx
-  household-switcher.tsx
-/prisma
-  schema.prisma
+src/
+├── app/
+│   ├── (app)/
+│   │   ├── catalog/page.tsx         # CRUD catálogo de ítems
+│   │   ├── dashboard/page.tsx       # Pantalla de inicio
+│   │   ├── history/page.tsx         # Historial de listas y precios
+│   │   ├── list/
+│   │   │   ├── active/page.tsx      # Lista activa (checklist + precios + total)
+│   │   │   └── [listId]/page.tsx    # Detalle de lista completada (tipo factura)
+│   │   └── layout.tsx
+│   ├── (auth)/
+│   │   ├── login/page.tsx           # Login y registro
+│   │   └── join/[code]/page.tsx     # Redimir invitación
+│   ├── error.tsx                    # Error boundary global
+│   ├── globals.css                  # Design tokens, fuente Geist
+│   ├── layout.tsx                   # Root layout con PWA + toasts
+│   └── manifest.ts                  # PWA manifest (Next.js convention)
+├── components/
+│   ├── app-nav.tsx                  # Navegación principal con Logo
+│   ├── household-error-banner.tsx   # Banner de error de contexto de hogar
+│   ├── icons.tsx                    # Iconos SVG + Logo
+│   ├── ios-install-banner.tsx       # Banner de instalación PWA para iOS
+│   ├── service-worker-register.tsx  # Registro del service worker
+│   └── ui/
+│       ├── alert.tsx                # Alertas (error, success, warning, info)
+│       ├── badge.tsx                # CategoryBadge con colores por categoría
+│       ├── button.tsx               # Botón con variantes y Spinner integrado
+│       ├── empty-state.tsx          # Estado vacío reutilizable
+│       ├── input.tsx                # Input con label, error, hint, toggle de contraseña
+│       ├── phone-input.tsx          # Input de teléfono con selector de dial code
+│       └── spinner.tsx              # Indicador de carga
+├── contexts/
+│   ├── household-context.tsx        # Estado global del hogar activo
+│   └── toast-context.tsx            # Sistema de notificaciones toast
+├── lib/
+│   ├── cn.ts                        # Utilidad clsx + tailwind-merge
+│   ├── supabase/
+│   │   ├── client.ts               # Cliente browser
+│   │   └── server.ts               # Cliente server (SSR)
+│   ├── types.ts                    # Tipos TypeScript
+│   ├── validation/
+│   │   └── schemas.ts              # Schemas Zod (signInSchema, signUpSchema, etc.)
+│   └── whatsapp/
+│       ├── format-list.ts          # Formateador de lista para WhatsApp
+│       └── format-list.test.ts     # Tests unitarios
+├── proxy.ts                        # Middleware de autenticación (Next.js 16)
+public/
+├── icon-192.png                    # Ícono PWA 192×192
+├── icon-512.png                    # Ícono PWA 512×512
+└── sw.js                           # Service worker (Network-first + Cache-first)
+.github/
+├── CODEOWNERS                      # @CarlosVlz1 como dueño de todo el repo
+└── PULL_REQUEST_TEMPLATE.md        # Template de PRs
+prisma/
+└── schema.prisma                   # Esquema Prisma (referencia, no se ejecuta en runtime)
+scripts/
+└── generate-icons.mjs              # Genera íconos PNG para PWA con Node.js puro
 ```
 
 ## 11. Convenciones para agentes
@@ -302,50 +362,55 @@ Dado el tamaño del proyecto, no se exige suite exhaustiva:
 - TypeScript estricto, sin `any` salvo justificación explícita en el código.
 - Ninguna consulta a Supabase se implementa sin que exista antes una política RLS que la cubra.
 - `household_id` nunca viene de un input del usuario — siempre del hogar activo en el contexto de sesión.
+- El middleware de autenticación vive en `src/proxy.ts` (Next.js 16 renombra `middleware.ts` a `proxy.ts`).
+- No usar IIFEs (`{(() => { ... })()}`) dentro de JSX — calcular valores fuera del `return`.
 
 ## 12. Tareas atómicas por fase
 
-### Fase 0 — Setup
+### Fase 0 — Setup ✅
 
-| ID | Tarea | Criterio de aceptación | Depende de |
-|---|---|---|---|
-| F0-01 | Crear proyecto Supabase y proyecto Next.js | Repos creados, `.env` con claves configurado | — |
-| F0-02 | Definir `schema.prisma` con `@map`/`@@map` en snake_case y migrar | Tablas creadas en Postgres con nombres snake_case | F0-01 |
-| F0-03 | Configurar Supabase Auth (email/password) | Login y registro funcionan desde el dashboard de Supabase | F0-01 |
-| F0-04 | Escribir políticas RLS base + funciones `SECURITY DEFINER` (`create_household`, `redeem_household_invite`) | Políticas y funciones probadas con 2 usuarios en hogares distintos | F0-02, F0-03 |
-| F0-05 | Configurar cliente `supabase-js` (browser y server) | El cliente lee una tabla de prueba desde Next.js | F0-01 |
-| F0-06 | Configurar variables de entorno y pipeline de despliegue (Vercel + Supabase) | Deploy de un "hola mundo" accesible en una URL pública | F0-01 |
+| ID | Tarea | Estado |
+|---|---|---|
+| F0-01 | Crear proyecto Supabase y proyecto Next.js | ✅ |
+| F0-02 | Definir `schema.prisma` con `@map`/`@@map` en snake_case y migrar | ✅ |
+| F0-03 | Configurar Supabase Auth (email/password) | ✅ |
+| F0-04 | Escribir políticas RLS base + funciones `SECURITY DEFINER` | ✅ |
+| F0-05 | Configurar cliente `supabase-js` (browser y server) | ✅ |
+| F0-06 | Configurar variables de entorno y pipeline de despliegue (Vercel) | ✅ |
 
-### Fase 1 — MVP
+### Fase 1 — MVP ✅
 
-| ID | Tarea | Criterio de aceptación | Depende de |
-|---|---|---|---|
-| F1-01 | Pantalla de login/registro | Usuario crea cuenta e inicia sesión; errores mapeados según sección 5 | F0-03 |
-| F1-02 | Crear hogar (UI + RPC `create_household`) | Usuario crea un hogar y queda como `OWNER` | F0-04 |
-| F1-03 | Invitar y unirse a hogar (UI + RPC `redeem_household_invite`) | Un segundo usuario se une con el código antes de que expire; código vencido muestra el error mapeado | F1-02 |
-| F1-04 | CRUD de catálogo de ítems | Ítems visibles solo dentro de su hogar; validaciones de la sección 3 aplicadas | F1-03 |
-| F1-05 | Vista de checklist semanal | Al marcar un ítem se crea o actualiza la `ShoppingList` activa | F1-04 |
-| F1-06 | Función `formatListForWhatsApp` + botón copiar | Test unitario con el ejemplo de la sección 6 pasa; botón copia al portapapeles | F1-05 |
+| ID | Tarea | Estado |
+|---|---|---|
+| F1-01 | Pantalla de login/registro (nombre, apellido, teléfono, contraseña con checklist) | ✅ |
+| F1-02 | Crear hogar (UI + RPC `create_household`) | ✅ |
+| F1-03 | Invitar y unirse a hogar (UI + RPC `redeem_household_invite`) | ✅ |
+| F1-04 | CRUD de catálogo de ítems | ✅ |
+| F1-05 | Vista de checklist semanal con cantidades | ✅ |
+| F1-06 | Función `formatListForWhatsApp` + botón compartir (ítems pendientes) | ✅ |
 
-### Fase 2 — Precios
+### Fase 2 — Precios ✅
 
-| ID | Tarea | Criterio de aceptación | Depende de |
-|---|---|---|---|
-| F2-01 | Campo de precio editable por ítem de lista | Precio se guarda en `shopping_list_items`; rechaza valores negativos | F1-05 |
-| F2-02 | Registrar en `price_history` al marcar como comprado | Cada marcado como comprado crea un registro histórico | F2-01 |
-| F2-03 | Total estimado de la lista | El total se recalcula sin recargar al editar precio o cantidad | F2-01 |
+| ID | Tarea | Estado |
+|---|---|---|
+| F2-01 | Campo de precio editable por ítem de lista (debounced) | ✅ |
+| F2-02 | Registrar en `price_history` al cerrar la lista | ✅ |
+| F2-03 | Total estimado en tiempo real desde `priceInputs` | ✅ |
+| F2-04 | Persistir total en `shopping_lists.total` al cerrar | ✅ |
+| F2-05 | Historial: acordeón con subtotales por ítem y total por lista | ✅ |
+| F2-06 | Detalle de lista completada tipo factura (`/list/[listId]`) | ✅ |
 
 ### Fase 3 — Tiempo real
 
-| ID | Tarea | Criterio de aceptación | Depende de |
-|---|---|---|---|
-| F3-01 | Suscripción Realtime a `shopping_list_items` de la lista activa | Cambios de otro miembro aparecen sin recargar | F1-05 |
-| F3-02 | Indicador de quién marcó cada ítem | Nombre o avatar visible junto al ítem marcado | F3-01 |
+| ID | Tarea | Estado |
+|---|---|---|
+| F3-01 | Suscripción Realtime a `shopping_list_items` de la lista activa | ⬜ pendiente |
+| F3-02 | Indicador de quién marcó cada ítem | ⬜ pendiente |
 
 ### Fase 4 — Inteligencia y PWA
 
-| ID | Tarea | Criterio de aceptación | Depende de |
-|---|---|---|---|
-| F4-01 | Edge Function de sugerencias por frecuencia de compra | Endpoint devuelve ítems que probablemente faltan según el historial | F2-02 |
-| F4-02 | Vista de historial de precios por ítem | Gráfico de línea simple con la evolución del precio en el tiempo | F2-02 |
-| F4-03 | Manifest y service worker (PWA) | App instalable desde el navegador; checklist funciona sin conexión | F1-05 |
+| ID | Tarea | Estado |
+|---|---|---|
+| F4-01 | Edge Function de sugerencias por frecuencia de compra | ⬜ pendiente |
+| F4-02 | Gráfico de historial de precios por ítem | ⬜ pendiente |
+| F4-03 | Manifest, service worker e íconos (PWA instalable) | ✅ |
