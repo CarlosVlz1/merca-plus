@@ -14,6 +14,7 @@ import EmptyState from '@/components/ui/empty-state'
 import { getCategoryEmoji } from '@/components/ui/badge'
 import { CheckIcon, PlusIcon, XIcon, WhatsAppIcon } from '@/components/icons'
 import { cn } from '@/lib/cn'
+import { useToast } from '@/contexts/toast-context'
 
 interface ListItemWithDetails extends ShoppingListItem {
   item: Item
@@ -25,6 +26,7 @@ export default function ActiveListPage() {
   const { household, loading: householdLoading } = useHousehold()
   const supabase = createClient()
   const router = useRouter()
+  const { toast } = useToast()
   const [state, setState] = useState<PageState>('loading')
   const [list, setList] = useState<ShoppingList | null>(null)
   const [listItems, setListItems] = useState<ListItemWithDetails[]>([])
@@ -116,7 +118,9 @@ export default function ActiveListPage() {
       .from('shopping_list_items')
       .update({ checked: newChecked, checked_by_user_id: newChecked ? (user?.id ?? null) : null })
       .eq('id', li.id)
-    if (!error) {
+    if (error) {
+      toast('No se pudo actualizar el ítem. Intenta de nuevo.')
+    } else {
       setListItems((prev) =>
         prev.map((i) =>
           i.id === li.id
@@ -151,7 +155,9 @@ export default function ActiveListPage() {
       .from('shopping_list_items')
       .update({ quantity: newQty })
       .eq('id', li.id)
-    if (!error) {
+    if (error) {
+      toast('No se pudo actualizar la cantidad.')
+    } else {
       setListItems((prev) =>
         prev.map((i) => (i.id === li.id ? { ...i, quantity: newQty } : i)),
       )
@@ -168,28 +174,36 @@ export default function ActiveListPage() {
     saveTimers.current[liId] = setTimeout(async () => {
       const num = parseFloat(cleaned)
       if (!isNaN(num) && num > 0) {
-        await supabase
+        const { error } = await supabase
           .from('shopping_list_items')
           .update({ price: num })
           .eq('id', liId)
-        setListItems((prev) =>
-          prev.map((i) => (i.id === liId ? { ...i, price: num } : i)),
-        )
+        if (error) {
+          toast('No se pudo guardar el precio.')
+        } else {
+          setListItems((prev) =>
+            prev.map((i) => (i.id === liId ? { ...i, price: num } : i)),
+          )
+        }
       } else if (cleaned === '' || cleaned === '0') {
-        await supabase
+        const { error } = await supabase
           .from('shopping_list_items')
           .update({ price: null })
           .eq('id', liId)
-        setListItems((prev) =>
-          prev.map((i) => (i.id === liId ? { ...i, price: null } : i)),
-        )
+        if (!error) {
+          setListItems((prev) =>
+            prev.map((i) => (i.id === liId ? { ...i, price: null } : i)),
+          )
+        }
       }
     }, 800)
   }
 
   async function handleRemoveItem(li: ListItemWithDetails) {
     const { error } = await supabase.from('shopping_list_items').delete().eq('id', li.id)
-    if (!error) {
+    if (error) {
+      toast(`No se pudo quitar "${li.item.name}" de la lista.`)
+    } else {
       setListItems((prev) => prev.filter((i) => i.id !== li.id))
       setPriceInputs((prev) => { const next = { ...prev }; delete next[li.id]; return next })
     }
