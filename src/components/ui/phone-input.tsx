@@ -41,8 +41,6 @@ export default function PhoneInput({
   error,
   hint,
 }: PhoneInputProps) {
-  const selected = DIAL_CODES.find((d) => d.code === dialCode) ?? DIAL_CODES[0]
-
   return (
     <div className="flex flex-col gap-1.5">
       <label className="text-sm font-semibold text-gray-700">
@@ -58,18 +56,15 @@ export default function PhoneInput({
       >
         {/* Dial code selector */}
         <div className="relative flex shrink-0 items-center border-r border-gray-200">
-          <span className="pointer-events-none absolute left-3 text-base select-none">
-            {selected.flag}
-          </span>
           <select
             value={dialCode}
             onChange={(e) => onDialCodeChange(e.target.value)}
             aria-label="Código de país"
-            className="h-full appearance-none bg-transparent py-2.5 pl-9 pr-6 text-sm text-gray-700 focus:outline-none cursor-pointer"
+            className="h-full appearance-none bg-transparent py-2.5 pl-3 pr-7 text-sm text-gray-700 focus:outline-none cursor-pointer"
           >
             {DIAL_CODES.map((d, i) => (
-              <option key={`${d.code}-${i}`} value={d.code}>
-                {d.flag} {d.name} ({d.code})
+              <option key={`${d.code}-${i}`} value={d.code} title={d.name}>
+                {d.flag} {d.code}
               </option>
             ))}
           </select>
