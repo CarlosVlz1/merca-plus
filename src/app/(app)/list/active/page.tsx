@@ -137,13 +137,28 @@ export default function ActiveListPage() {
     if (!user) return
     setAddingItem(true)
     try {
-      const { error } = await supabase.from('shopping_list_items').upsert(
-        { list_id: list.id, item_id: selectedItemId, quantity: 1, added_by_user_id: user.id },
-        { onConflict: 'list_id,item_id' },
-      )
-      if (error) { setErrorMsg('No se pudo agregar el ítem.'); return }
+      const { data, error } = await supabase
+        .from('shopping_list_items')
+        .upsert(
+          { list_id: list.id, item_id: selectedItemId, quantity: 1, added_by_user_id: user.id },
+          { onConflict: 'list_id,item_id' },
+        )
+        .select('*, item:items(*)')
+        .limit(1)
+
+      if (error) { toast('No se pudo agregar el ítem.'); return }
+
+      const newItem = data?.[0] as ListItemWithDetails | undefined
+      if (newItem) {
+        setListItems((prev) => {
+          const exists = prev.some((li) => li.item_id === newItem.item_id)
+          return exists
+            ? prev.map((li) => li.item_id === newItem.item_id ? newItem : li)
+            : [...prev, newItem]
+        })
+      }
+
       setSelectedItemId('')
-      await loadOrCreateList()
     } finally {
       setAddingItem(false)
     }
