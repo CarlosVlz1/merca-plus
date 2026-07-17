@@ -2,7 +2,8 @@ import { z } from 'zod'
 
 export const signUpSchema = z
   .object({
-    fullName: z.string().min(2, 'El nombre debe tener al menos 2 caracteres').max(100),
+    firstName: z.string().min(2, 'El nombre debe tener al menos 2 caracteres').max(50),
+    lastName: z.string().min(2, 'El apellido debe tener al menos 2 caracteres').max(50),
     phone: z
       .string()
       .regex(/^[0-9\s]{6,15}$/, 'Número inválido')

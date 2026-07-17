@@ -239,10 +239,14 @@ export default function ActiveListPage() {
         )
       }
 
-      // Archive the list
+      // Archive the list with total
       const { error: closeError } = await supabase
         .from('shopping_lists')
-        .update({ status: 'CLOSED', closed_at: new Date().toISOString() })
+        .update({
+          status: 'CLOSED',
+          closed_at: new Date().toISOString(),
+          total: totalAmount > 0 ? totalAmount : null,
+        })
         .eq('id', list.id)
       if (closeError) throw closeError
 
@@ -299,6 +303,14 @@ export default function ActiveListPage() {
   const progress = total > 0 ? (checkedCount / total) * 100 : 0
   const itemsWithPriceCount = listItems.filter((li) => li.price != null && li.price > 0).length
 
+  const totalAmount = listItems.reduce((sum, li) => {
+    if (li.price != null && li.price > 0) return sum + li.price * Number(li.quantity)
+    return sum
+  }, 0)
+
+  const formatCOP = (n: number) =>
+    new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(n)
+
   const byCategory = listItems.reduce<Record<string, ListItemWithDetails[]>>((acc, li) => {
     const cat = li.item.category
     if (!acc[cat]) acc[cat] = []
@@ -324,6 +336,12 @@ export default function ActiveListPage() {
               className="h-full rounded-full bg-green-500 transition-all duration-300"
               style={{ width: `${progress}%` }}
             />
+          </div>
+        )}
+        {totalAmount > 0 && (
+          <div className="flex items-center justify-between rounded-xl bg-green-50 px-4 py-2.5">
+            <span className="text-sm text-green-700 font-medium">Total estimado</span>
+            <span className="text-base font-bold text-green-700">{formatCOP(totalAmount)}</span>
           </div>
         )}
       </div>
