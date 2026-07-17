@@ -7,6 +7,7 @@ import { signUpSchema, signInSchema } from '@/lib/validation/schemas'
 import Button from '@/components/ui/button'
 import Input from '@/components/ui/input'
 import Alert from '@/components/ui/alert'
+import PhoneInput from '@/components/ui/phone-input'
 import { cn } from '@/lib/cn'
 import { Logo } from '@/components/icons'
 
@@ -50,7 +51,8 @@ export default function LoginPage() {
   const supabase = createClient()
   const [mode, setMode] = useState<Mode>('login')
   const [fullName, setFullName] = useState('')
-  const [phone, setPhone] = useState('')
+  const [dialCode, setDialCode] = useState('+57')
+  const [phoneNumber, setPhoneNumber] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
@@ -85,6 +87,7 @@ export default function LoginPage() {
         setLoading(false)
       }
     } else {
+      const phone = phoneNumber.trim()
       const result = signUpSchema.safeParse({ fullName, phone, email, password, confirmPassword })
       if (!result.success) {
         setError(result.error.issues[0].message)
@@ -98,7 +101,7 @@ export default function LoginPage() {
           options: {
             data: {
               full_name: fullName.trim(),
-              phone: phone.trim() || null,
+              phone: phoneNumber.trim() ? `${dialCode} ${phoneNumber.trim()}` : null,
             },
           },
         })
@@ -158,14 +161,11 @@ export default function LoginPage() {
                   autoComplete="name"
                   required
                 />
-                <Input
-                  label="Teléfono"
-                  type="tel"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  placeholder="+57 300 123 4567"
-                  autoComplete="tel"
-                  hint="Opcional"
+                <PhoneInput
+                  dialCode={dialCode}
+                  number={phoneNumber}
+                  onDialCodeChange={setDialCode}
+                  onNumberChange={setPhoneNumber}
                 />
               </>
             )}

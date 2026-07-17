@@ -13,6 +13,7 @@ import EmptyState from '@/components/ui/empty-state'
 import { CategoryBadge, getCategoryEmoji, CATEGORY_CONFIG } from '@/components/ui/badge'
 import { PlusIcon, SearchIcon, EditIcon, TrashIcon, XIcon } from '@/components/icons'
 import { cn } from '@/lib/cn'
+import { useToast } from '@/contexts/toast-context'
 
 const CATEGORIES = Object.keys(CATEGORY_CONFIG)
 
@@ -103,6 +104,7 @@ type PageState = 'loading' | 'error' | 'ready'
 export default function CatalogPage() {
   const { household, loading: householdLoading } = useHousehold()
   const supabase = createClient()
+  const { toast } = useToast()
   const [state, setState] = useState<PageState>('loading')
   const [items, setItems] = useState<Item[]>([])
   const [errorMsg, setErrorMsg] = useState('')
@@ -180,7 +182,11 @@ export default function CatalogPage() {
   async function handleDelete(item: Item) {
     if (!confirm(`¿Eliminar "${item.name}"?`)) return
     const { error } = await supabase.from('items').delete().eq('id', item.id)
-    if (!error) await loadItems()
+    if (error) {
+      toast(`No se pudo eliminar "${item.name}". Intenta de nuevo.`)
+    } else {
+      await loadItems()
+    }
   }
 
   const filtered = items.filter((i) =>
