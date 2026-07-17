@@ -5,7 +5,7 @@ export const signUpSchema = z
     fullName: z.string().min(2, 'El nombre debe tener al menos 2 caracteres').max(100),
     phone: z
       .string()
-      .regex(/^\+?[0-9\s\-().]{7,20}$/, 'Teléfono inválido')
+      .regex(/^[0-9\s]{6,15}$/, 'Número inválido')
       .optional()
       .or(z.literal('')),
     email: z.string().email('Correo inválido'),
