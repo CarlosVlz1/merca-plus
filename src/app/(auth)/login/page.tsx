@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { signUpSchema, signInSchema } from '@/lib/validation/schemas'
+import { mapAuthError } from '@/lib/auth/errors'
 import Button from '@/components/ui/button'
 import Input from '@/components/ui/input'
 import Alert from '@/components/ui/alert'
@@ -34,25 +35,6 @@ function PasswordChecklist({ password }: { password: string }) {
 }
 
 type Mode = 'login' | 'register'
-
-function mapAuthError(code: string | undefined): string {
-  if (code === 'user_already_exists' || code === 'email_address_already_authorized') {
-    return 'Ese correo ya tiene una cuenta. Intenta iniciar sesión.'
-  }
-  if (code === 'invalid_credentials' || code === 'email_not_confirmed') {
-    return 'Correo o contraseña incorrectos.'
-  }
-  if (code === 'auth_callback_failed') {
-    return 'No se pudo verificar tu correo. Intenta registrarte de nuevo.'
-  }
-  if (code === 'session_exchange_failed') {
-    return 'El enlace de confirmación expiró. Intenta registrarte de nuevo.'
-  }
-  if (code === 'missing_code') {
-    return 'El enlace de confirmación es inválido.'
-  }
-  return 'No se pudo completar la acción. Intenta de nuevo.'
-}
 
 export default function LoginPage() {
   const router = useRouter()
