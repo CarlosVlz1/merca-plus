@@ -31,7 +31,8 @@ async function proxy(request: NextRequest) {
 
   const isAuthPath =
     request.nextUrl.pathname.startsWith('/login') ||
-    request.nextUrl.pathname.startsWith('/join')
+    request.nextUrl.pathname.startsWith('/join') ||
+    request.nextUrl.pathname.startsWith('/auth/callback')
 
   if (!user && !isAuthPath) {
     const url = request.nextUrl.clone()

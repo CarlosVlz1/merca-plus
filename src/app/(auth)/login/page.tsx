@@ -92,10 +92,12 @@ export default function LoginPage() {
       }
       setLoading(true)
       try {
+        const origin = typeof window !== 'undefined' ? window.location.origin : ''
         const { error: authError } = await supabase.auth.signUp({
           email,
           password,
           options: {
+            emailRedirectTo: `${origin}/auth/callback`,
             data: {
               full_name: fullName.trim(),
               phone: phone.trim() || null,
