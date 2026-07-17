@@ -124,97 +124,99 @@ export default function HistoryPage() {
             const checkedItems = cl.items.filter((i) => i.checked)
             const totalItems = cl.items.length
             const closedDate = cl.closed_at ?? cl.created_at
+            const listTotal = Number(cl.total) > 0
+              ? Number(cl.total)
+              : cl.items.reduce((sum, li) => {
+                  if (li.price != null && li.price > 0) return sum + Number(li.price) * Number(li.quantity)
+                  return sum
+                }, 0)
 
             return (
-              {(() => {
-                // Prefer persisted total (>0); fall back to calculating from items
-                const listTotal = Number(cl.total) > 0
-                  ? Number(cl.total)
-                  : cl.items.reduce((sum, li) => {
-                      if (li.price != null && li.price > 0) return sum + Number(li.price) * Number(li.quantity)
-                      return sum
-                    }, 0)
-
-                return (
-                  <div key={cl.id} className="rounded-2xl bg-white shadow-sm border border-gray-100 overflow-hidden">
-                    {/* List header */}
-                    <button
-                      onClick={() => setExpandedListId(isExpanded ? null : cl.id)}
-                      className="w-full flex items-center gap-3 px-4 py-3.5 text-left hover:bg-gray-50/80 transition-colors"
-                    >
-                      <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-green-100 text-green-600 text-base">
-                        ✅
-                      </span>
-                      <div className="flex-1 min-w-0">
-                        <p className="font-semibold text-sm text-gray-800">
-                          Lista del {formatDateShort(closedDate)}
-                        </p>
-                        <p className="text-xs text-gray-400 mt-0.5">
-                          {totalItems} producto{totalItems !== 1 ? 's' : ''} · {checkedItems.length} obtenido{checkedItems.length !== 1 ? 's' : ''}
-                        </p>
-                      </div>
-                      <div className="flex items-center gap-2 shrink-0">
-                        {listTotal > 0 && (
-                          <span className="text-sm font-bold text-green-600">{formatPrice(listTotal)}</span>
-                        )}
-                        <span className={cn('text-gray-300 transition-transform duration-200 text-xs', isExpanded && 'rotate-180')}>▼</span>
-                      </div>
-                    </button>
-
-                    {/* Expanded items */}
-                    {isExpanded && (
-                      <>
-                        <ul className="border-t border-gray-100">
-                          {cl.items.map((li, idx) => {
-                            const subtotal = li.price != null && li.price > 0
-                              ? Number(li.price) * Number(li.quantity)
-                              : null
-                            return (
-                              <li
-                                key={li.id}
-                                className={cn(
-                                  'flex items-center gap-3 px-4 py-2.5',
-                                  li.checked ? 'bg-green-50/30' : 'bg-white',
-                                  idx !== cl.items.length - 1 && 'border-b border-gray-50',
-                                )}
-                              >
-                                <span className={cn(
-                                  'flex size-5 shrink-0 items-center justify-center rounded-full border-2',
-                                  li.checked ? 'border-green-500 bg-green-500 text-white' : 'border-gray-200',
-                                )}>
-                                  {li.checked && <CheckIcon size={10} />}
-                                </span>
-                                <div className="flex-1 min-w-0">
-                                  <p className={cn('text-sm', li.checked ? 'line-through text-gray-400' : 'text-gray-700')}>
-                                    {li.item.name}
-                                    {li.item.unit && <span className="text-gray-400 font-normal"> · {li.item.unit}</span>}
-                                  </p>
-                                  {li.price != null && li.price > 0 && (
-                                    <p className="text-xs text-gray-400 mt-0.5">
-                                      {formatPrice(Number(li.price))} × {Number(li.quantity)}
-                                    </p>
-                                  )}
-                                </div>
-                                {subtotal != null && (
-                                  <span className="text-sm font-semibold text-green-600 shrink-0">
-                                    {formatPrice(subtotal)}
-                                  </span>
-                                )}
-                              </li>
-                            )
-                          })}
-                        </ul>
-                        {listTotal > 0 && (
-                          <div className="flex items-center justify-between border-t border-gray-100 bg-green-50 px-4 py-3">
-                            <span className="text-sm font-semibold text-green-800">Total de la lista</span>
-                            <span className="text-base font-bold text-green-700">{formatPrice(listTotal)}</span>
-                          </div>
-                        )}
-                      </>
-                    )}
+              <div key={cl.id} className="rounded-2xl bg-white shadow-sm border border-gray-100 overflow-hidden">
+                {/* Header — expande el acordeón */}
+                <button
+                  onClick={() => setExpandedListId(isExpanded ? null : cl.id)}
+                  className="w-full flex items-center gap-3 px-4 py-3.5 text-left hover:bg-gray-50/80 transition-colors"
+                >
+                  <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-green-100 text-green-600 text-base">
+                    ✅
+                  </span>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-sm text-gray-800">
+                      Lista del {formatDateShort(closedDate)}
+                    </p>
+                    <p className="text-xs text-gray-400 mt-0.5">
+                      {totalItems} producto{totalItems !== 1 ? 's' : ''} · {checkedItems.length} obtenido{checkedItems.length !== 1 ? 's' : ''}
+                    </p>
                   </div>
-                )
-              })()}
+                  <div className="flex items-center gap-2 shrink-0">
+                    {listTotal > 0 && (
+                      <span className="text-sm font-bold text-green-600">{formatPrice(listTotal)}</span>
+                    )}
+                    <span className={cn('text-gray-300 transition-transform duration-200 text-xs', isExpanded && 'rotate-180')}>▼</span>
+                  </div>
+                </button>
+
+                {/* Ítems expandidos con subtotales */}
+                {isExpanded && (
+                  <>
+                    <ul className="border-t border-gray-100">
+                      {cl.items.map((li, idx) => {
+                        const subtotal = li.price != null && li.price > 0
+                          ? Number(li.price) * Number(li.quantity)
+                          : null
+                        return (
+                          <li
+                            key={li.id}
+                            className={cn(
+                              'flex items-center gap-3 px-4 py-2.5',
+                              li.checked ? 'bg-green-50/30' : 'bg-white',
+                              idx !== cl.items.length - 1 && 'border-b border-gray-50',
+                            )}
+                          >
+                            <span className={cn(
+                              'flex size-5 shrink-0 items-center justify-center rounded-full border-2',
+                              li.checked ? 'border-green-500 bg-green-500 text-white' : 'border-gray-200',
+                            )}>
+                              {li.checked && <CheckIcon size={10} />}
+                            </span>
+                            <div className="flex-1 min-w-0">
+                              <p className={cn('text-sm', li.checked ? 'line-through text-gray-400' : 'text-gray-700')}>
+                                {li.item.name}
+                                {li.item.unit && <span className="text-gray-400 font-normal"> · {li.item.unit}</span>}
+                              </p>
+                              {li.price != null && li.price > 0 && (
+                                <p className="text-xs text-gray-400 mt-0.5">
+                                  {formatPrice(Number(li.price))} × {Number(li.quantity)}
+                                </p>
+                              )}
+                            </div>
+                            {subtotal != null && (
+                              <span className="text-sm font-semibold text-green-600 shrink-0">
+                                {formatPrice(subtotal)}
+                              </span>
+                            )}
+                          </li>
+                        )
+                      })}
+                    </ul>
+                    {listTotal > 0 && (
+                      <div className="flex items-center justify-between border-t border-gray-100 bg-green-50 px-4 py-3">
+                        <span className="text-sm font-semibold text-green-800">Total de la lista</span>
+                        <span className="text-base font-bold text-green-700">{formatPrice(listTotal)}</span>
+                      </div>
+                    )}
+                    {/* Enlace al detalle completo tipo factura */}
+                    <a
+                      href={`/list/${cl.id}`}
+                      className="flex items-center justify-center gap-1.5 border-t border-gray-100 py-2.5 text-xs font-medium text-green-600 hover:bg-green-50 transition-colors"
+                    >
+                      Ver detalle completo
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><polyline points="9 18 15 12 9 6" /></svg>
+                    </a>
+                  </>
+                )}
+              </div>
             )
           })
         )}
