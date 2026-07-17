@@ -71,20 +71,14 @@ function ItemForm({ initial, onSave, onCancel, saving, error }: ItemFormProps) {
           />
         </div>
         <div className="w-32">
-          <label className="mb-1.5 block text-sm font-semibold text-gray-700">
-            Precio ref. (opcional)
-          </label>
-          <div className="relative">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-gray-400 pointer-events-none">$</span>
-            <input
-              type="text"
-              inputMode="decimal"
-              placeholder="0"
-              value={price}
-              onChange={(e) => setPrice(e.target.value.replace(/[^0-9.,]/g, ''))}
-              className="w-full rounded-xl border border-gray-200 bg-white pl-7 pr-3 py-2.5 text-sm shadow-sm focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-500/20"
-            />
-          </div>
+          <Input
+            label="Precio unitario"
+            value={price}
+            onChange={(e) => setPrice(e.target.value.replace(/[^0-9.,]/g, ''))}
+            placeholder="0"
+            inputMode="decimal"
+            startIcon={<span className="text-sm text-gray-400">$</span>}
+          />
         </div>
       </div>
       <div className="flex gap-2 pt-1">
