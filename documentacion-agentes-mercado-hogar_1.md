@@ -300,7 +300,9 @@ Dado el tamaño del proyecto, no se exige suite exhaustiva:
 src/
 ├── app/
 │   ├── (app)/
-│   │   ├── catalog/page.tsx         # CRUD catálogo de ítems
+│   │   ├── catalog/page.tsx         # CRUD catálogo de ítems (campo: "Precio unitario")
+│   │   ├── insights/page.tsx        # Dashboard de métricas: gasto mensual, evolución de precios, gasto por categoría
+│   │   ├── insights/layout.tsx      # Metadata: title 'Insights'
 │   │   ├── dashboard/page.tsx       # Pantalla de inicio
 │   │   ├── history/page.tsx         # Historial de listas y precios
 │   │   ├── list/
@@ -412,5 +414,5 @@ scripts/
 | ID | Tarea | Estado |
 |---|---|---|
 | F4-01 | Edge Function de sugerencias por frecuencia de compra | ⬜ pendiente |
-| F4-02 | Gráfico de historial de precios por ítem | ⬜ pendiente |
+| F4-02 | Página `/insights` con métricas financieras y gráficas SVG | ✅ |
 | F4-03 | Manifest, service worker e íconos (PWA instalable) | ✅ |

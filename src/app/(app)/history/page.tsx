@@ -206,14 +206,6 @@ export default function HistoryPage() {
                         <span className="text-base font-bold text-green-700">{formatPrice(listTotal)}</span>
                       </div>
                     )}
-                    {/* Enlace al detalle completo tipo factura */}
-                    <a
-                      href={`/list/${cl.id}`}
-                      className="flex items-center justify-center gap-1.5 border-t border-gray-100 py-2.5 text-xs font-medium text-green-600 hover:bg-green-50 transition-colors"
-                    >
-                      Ver detalle completo
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><polyline points="9 18 15 12 9 6" /></svg>
-                    </a>
                   </>
                 )}
               </div>

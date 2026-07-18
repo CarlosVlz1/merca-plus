@@ -4,13 +4,14 @@ import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { cn } from '@/lib/cn'
-import { HomeIcon, CartIcon, GridIcon, TrendingIcon, LogOutIcon, Logo } from './icons'
+import { HomeIcon, CartIcon, GridIcon, TrendingIcon, LogOutIcon, Logo, ChartIcon } from './icons'
 
 const navItems = [
   { href: '/dashboard', label: 'Inicio',    Icon: HomeIcon },
   { href: '/list/active', label: 'Lista',   Icon: CartIcon },
   { href: '/catalog', label: 'Catálogo',    Icon: GridIcon },
   { href: '/history', label: 'Historial',   Icon: TrendingIcon },
+  { href: '/insights', label: 'Insights',   Icon: ChartIcon },
 ]
 
 export default function AppNav() {
