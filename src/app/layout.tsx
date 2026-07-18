@@ -3,6 +3,7 @@ import { Geist } from 'next/font/google'
 import './globals.css'
 import ServiceWorkerRegister from '@/components/service-worker-register'
 import IOSInstallBanner from '@/components/ios-install-banner'
+import AndroidInstallBanner from '@/components/android-install-banner'
 import { ToastProvider } from '@/contexts/toast-context'
 
 const geist = Geist({
@@ -30,6 +31,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="min-h-dvh bg-[#F7F8F5] text-gray-900 antialiased">
         <ServiceWorkerRegister />
         <IOSInstallBanner />
+        <AndroidInstallBanner />
         <ToastProvider>{children}</ToastProvider>
       </body>
     </html>
