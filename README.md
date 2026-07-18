@@ -12,6 +12,7 @@ App móvil (PWA) para organizar las compras del hogar. Permite crear listas de m
 - **Historial** — revisa listas anteriores (acordeón con subtotales) y el historial de precios por producto
 - **Detalle de lista** — vista tipo factura de cada compra completada (`/list/[listId]`)
 - **Compartir por WhatsApp** — genera texto con los ítems pendientes listo para enviar
+- **Insights** — métricas de gasto mensual, evolución de precios por producto y desglose por categoría (gráficas SVG)
 - **PWA** — instalable en Android e iOS, con service worker para carga offline
 
 ## Stack
@@ -84,6 +85,7 @@ src/
 ├── app/
 │   ├── (app)/
 │   │   ├── catalog/        # CRUD catálogo de ítems
+│   │   ├── insights/       # Dashboard de métricas financieras
 │   │   ├── dashboard/      # Pantalla de inicio
 │   │   ├── history/        # Historial de listas y precios
 │   │   └── list/
