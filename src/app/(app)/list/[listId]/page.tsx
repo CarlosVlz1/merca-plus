@@ -189,7 +189,7 @@ export default function ListPage() {
   if (state === 'loading') {
     return (
       <div className="flex h-48 items-center justify-center">
-        <span className="size-6 animate-spin rounded-full border-2 border-emerald-500 border-t-transparent" />
+        <span className="size-6 animate-spin rounded-full border-2 border-brand border-t-transparent" />
       </div>
     )
   }
@@ -197,8 +197,8 @@ export default function ListPage() {
   return (
     <div className="flex flex-col gap-4 py-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-bold">Lista activa</h1>
-        <span className="text-sm text-gray-500">
+        <h1 className="text-xl font-bold text-foreground">Lista activa</h1>
+        <span className="text-sm text-muted">
           {checkedCount}/{listItems.length} marcados
         </span>
       </div>
@@ -206,11 +206,11 @@ export default function ListPage() {
       {state === 'error' && <Alert message={errorMsg} />}
 
       {/* Add item */}
-      <div className="rounded-2xl bg-white p-4 shadow-sm border border-gray-100 flex gap-2">
+      <div className="rounded-2xl bg-surface p-4 shadow-sm border border-border flex gap-2">
         <select
           value={selectedItemId}
           onChange={(e) => setSelectedItemId(e.target.value)}
-          className="flex-1 rounded-xl border border-gray-300 bg-white px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+          className="flex-1 rounded-xl border border-border-strong bg-surface px-3 py-2 text-sm text-foreground focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20"
         >
           <option value="">Agregar ítem al catálogo…</option>
           {availableToAdd.map((ci) => (
@@ -231,26 +231,26 @@ export default function ListPage() {
 
       {/* Checklist grouped by category */}
       {Object.entries(grouped).map(([cat, items]) => (
-        <div key={cat} className="rounded-2xl bg-white shadow-sm border border-gray-100 overflow-hidden">
-          <div className="px-4 py-2 bg-gray-50 border-b border-gray-100">
-            <span className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+        <div key={cat} className="rounded-2xl bg-surface shadow-sm border border-border overflow-hidden">
+          <div className="px-4 py-2 bg-foreground/[0.03] border-b border-border">
+            <span className="text-xs font-semibold uppercase tracking-wide text-muted">
               {cat}
             </span>
           </div>
-          <ul className="divide-y divide-gray-100">
+          <ul className="divide-y divide-border/60">
             {items.map((li) => (
               <li
                 key={li.id}
                 className={`flex items-center gap-3 px-4 py-3 transition-colors ${
-                  li.checked ? 'bg-emerald-50/50' : ''
+                  li.checked ? 'bg-brand-light/50 dark:bg-brand/10' : ''
                 }`}
               >
                 <button
                   onClick={() => toggleChecked(li)}
                   className={`size-6 shrink-0 rounded-full border-2 transition-colors flex items-center justify-center ${
                     li.checked
-                      ? 'bg-emerald-500 border-emerald-500 text-white'
-                      : 'border-gray-300 hover:border-emerald-400'
+                      ? 'bg-brand border-brand text-white'
+                      : 'border-border-strong hover:border-brand/60'
                   }`}
                 >
                   {li.checked && (
@@ -267,22 +267,22 @@ export default function ListPage() {
                 </button>
                 <div className="flex-1 min-w-0">
                   <p
-                    className={`text-sm font-medium ${
-                      li.checked ? 'line-through text-gray-400' : ''
+                    className={`text-sm font-medium text-foreground ${
+                      li.checked ? 'line-through text-muted' : ''
                     }`}
                   >
                     {li.item.name}
                     {li.item.unit && (
-                      <span className="text-gray-400 font-normal">
+                      <span className="text-muted font-normal">
                         {' '}({li.item.unit})
                       </span>
                     )}
                   </p>
-                  <p className="text-xs text-gray-400">x{Number(li.quantity)}</p>
+                  <p className="text-xs text-muted">x{Number(li.quantity)}</p>
                 </div>
                 <button
                   onClick={() => handleRemoveItem(li)}
-                  className="text-gray-300 hover:text-red-400 transition-colors"
+                  className="text-muted hover:text-red-400 transition-colors"
                   aria-label="Quitar de la lista"
                 >
                   <svg className="size-4" viewBox="0 0 16 16" fill="currentColor">
@@ -296,8 +296,8 @@ export default function ListPage() {
       ))}
 
       {listItems.length === 0 && (
-        <div className="rounded-2xl bg-white p-8 text-center border border-gray-100">
-          <p className="text-gray-400 text-sm">
+        <div className="rounded-2xl bg-surface p-8 text-center border border-border">
+          <p className="text-muted text-sm">
             La lista está vacía. Agrega ítems desde el catálogo.
           </p>
         </div>

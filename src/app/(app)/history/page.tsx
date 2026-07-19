@@ -100,15 +100,15 @@ export default function HistoryPage() {
   return (
     <div className="flex flex-col gap-4 py-4">
       <div>
-        <h1 className="text-xl font-bold text-gray-900">Historial</h1>
-        <p className="text-sm text-gray-400">Listas completadas y precios</p>
+        <h1 className="text-xl font-bold text-foreground">Historial</h1>
+        <p className="text-sm text-muted">Listas completadas y precios</p>
       </div>
 
       {state === 'error' && <Alert message={errorMsg} />}
 
       {/* ── Listas completadas ── */}
       <section className="flex flex-col gap-2">
-        <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide px-1">
+        <h2 className="text-sm font-semibold text-muted uppercase tracking-wide px-1">
           Listas completadas
         </h2>
 
@@ -132,35 +132,35 @@ export default function HistoryPage() {
                 }, 0)
 
             return (
-              <div key={cl.id} className="rounded-2xl bg-white shadow-sm border border-gray-100 overflow-hidden">
+              <div key={cl.id} className="rounded-2xl bg-surface shadow-sm border border-border overflow-hidden">
                 {/* Header — expande el acordeón */}
                 <button
                   onClick={() => setExpandedListId(isExpanded ? null : cl.id)}
-                  className="w-full flex items-center gap-3 px-4 py-3.5 text-left hover:bg-gray-50/80 transition-colors"
+                  className="w-full flex items-center gap-3 px-4 py-3.5 text-left hover:bg-foreground/[0.03] transition-colors"
                 >
-                  <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-green-100 text-green-600 text-base">
+                  <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-brand-muted dark:bg-brand/20 text-brand-dark text-base">
                     ✅
                   </span>
                   <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-sm text-gray-800">
+                    <p className="font-semibold text-sm text-foreground">
                       Lista del {formatDateShort(closedDate)}
                     </p>
-                    <p className="text-xs text-gray-400 mt-0.5">
+                    <p className="text-xs text-muted mt-0.5">
                       {totalItems} producto{totalItems !== 1 ? 's' : ''} · {checkedItems.length} obtenido{checkedItems.length !== 1 ? 's' : ''}
                     </p>
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
                     {listTotal > 0 && (
-                      <span className="text-sm font-bold text-green-600">{formatPrice(listTotal)}</span>
+                      <span className="text-sm font-bold text-brand">{formatPrice(listTotal)}</span>
                     )}
-                    <span className={cn('text-gray-300 transition-transform duration-200 text-xs', isExpanded && 'rotate-180')}>▼</span>
+                    <span className={cn('text-muted transition-transform duration-200 text-xs', isExpanded && 'rotate-180')}>▼</span>
                   </div>
                 </button>
 
                 {/* Ítems expandidos con subtotales */}
                 {isExpanded && (
                   <>
-                    <ul className="border-t border-gray-100">
+                    <ul className="border-t border-border">
                       {cl.items.map((li, idx) => {
                         const subtotal = li.price != null && li.price > 0
                           ? Number(li.price) * Number(li.quantity)
@@ -170,29 +170,29 @@ export default function HistoryPage() {
                             key={li.id}
                             className={cn(
                               'flex items-center gap-3 px-4 py-2.5',
-                              li.checked ? 'bg-green-50/30' : 'bg-white',
-                              idx !== cl.items.length - 1 && 'border-b border-gray-50',
+                              li.checked ? 'bg-brand-light/30 dark:bg-brand/10' : 'bg-surface',
+                              idx !== cl.items.length - 1 && 'border-b border-border/60',
                             )}
                           >
                             <span className={cn(
                               'flex size-5 shrink-0 items-center justify-center rounded-full border-2',
-                              li.checked ? 'border-green-500 bg-green-500 text-white' : 'border-gray-200',
+                              li.checked ? 'border-brand bg-brand text-white' : 'border-border-strong',
                             )}>
                               {li.checked && <CheckIcon size={10} />}
                             </span>
                             <div className="flex-1 min-w-0">
-                              <p className={cn('text-sm', li.checked ? 'line-through text-gray-400' : 'text-gray-700')}>
+                              <p className={cn('text-sm', li.checked ? 'line-through text-muted' : 'text-foreground/80')}>
                                 {li.item.name}
-                                {li.item.unit && <span className="text-gray-400 font-normal"> · {li.item.unit}</span>}
+                                {li.item.unit && <span className="text-muted font-normal"> · {li.item.unit}</span>}
                               </p>
                               {li.price != null && li.price > 0 && (
-                                <p className="text-xs text-gray-400 mt-0.5">
+                                <p className="text-xs text-muted mt-0.5">
                                   {formatPrice(Number(li.price))} × {Number(li.quantity)}
                                 </p>
                               )}
                             </div>
                             {subtotal != null && (
-                              <span className="text-sm font-semibold text-green-600 shrink-0">
+                              <span className="text-sm font-semibold text-brand shrink-0">
                                 {formatPrice(subtotal)}
                               </span>
                             )}
@@ -201,9 +201,9 @@ export default function HistoryPage() {
                       })}
                     </ul>
                     {listTotal > 0 && (
-                      <div className="flex items-center justify-between border-t border-gray-100 bg-green-50 px-4 py-3">
-                        <span className="text-sm font-semibold text-green-800">Total de la lista</span>
-                        <span className="text-base font-bold text-green-700">{formatPrice(listTotal)}</span>
+                      <div className="flex items-center justify-between border-t border-border bg-brand-light dark:bg-brand/15 px-4 py-3">
+                        <span className="text-sm font-semibold text-brand-dark">Total de la lista</span>
+                        <span className="text-base font-bold text-brand-dark">{formatPrice(listTotal)}</span>
                       </div>
                     )}
                   </>
@@ -216,19 +216,19 @@ export default function HistoryPage() {
 
       {/* ── Historial de precios ── */}
       <section className="flex flex-col gap-3 mt-2">
-        <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide px-1">
+        <h2 className="text-sm font-semibold text-muted uppercase tracking-wide px-1">
           Precios por producto
         </h2>
 
         {/* Item selector */}
-        <div className="rounded-2xl bg-white p-4 shadow-sm border border-gray-100">
-          <label className="mb-2 block text-sm font-semibold text-gray-700">
+        <div className="rounded-2xl bg-surface p-4 shadow-sm border border-border">
+          <label className="mb-2 block text-sm font-semibold text-foreground">
             Selecciona un producto
           </label>
           <select
             value={selectedItemId}
             onChange={(e) => setSelectedItemId(e.target.value)}
-            className="w-full rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-sm text-gray-700 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-500/20"
+            className="w-full rounded-xl border border-border-strong bg-surface px-3 py-2.5 text-sm text-foreground focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20"
           >
             <option value="">— Elige un producto —</option>
             {items.map((item) => (
@@ -242,21 +242,21 @@ export default function HistoryPage() {
 
         {/* Price stats + history */}
         {selectedItem && (
-          <div className="rounded-2xl bg-white shadow-sm border border-gray-100 overflow-hidden">
+          <div className="rounded-2xl bg-surface shadow-sm border border-border overflow-hidden">
             {/* Item header */}
-            <div className="px-4 py-4 border-b border-gray-100">
+            <div className="px-4 py-4 border-b border-border">
               <div className="flex items-center gap-2">
                 <span className="text-2xl">{getCategoryEmoji(selectedItem.category)}</span>
                 <div>
-                  <h2 className="font-bold text-gray-800">{selectedItem.name}</h2>
+                  <h2 className="font-bold text-foreground">{selectedItem.name}</h2>
                   {selectedItem.unit && (
-                    <p className="text-xs text-gray-400">{selectedItem.unit}</p>
+                    <p className="text-xs text-muted">{selectedItem.unit}</p>
                   )}
                 </div>
                 {selectedItem.last_price && (
                   <div className="ml-auto text-right">
-                    <p className="text-xs text-gray-400">Último precio</p>
-                    <p className="font-bold text-green-600">{formatPrice(selectedItem.last_price)}</p>
+                    <p className="text-xs text-muted">Último precio</p>
+                    <p className="font-bold text-brand">{formatPrice(selectedItem.last_price)}</p>
                   </div>
                 )}
               </div>
@@ -264,14 +264,14 @@ export default function HistoryPage() {
 
             {/* Price range stats */}
             {!historyLoading && history.length > 1 && priceMin !== null && priceMax !== null && (
-              <div className="grid grid-cols-2 divide-x divide-gray-100 border-b border-gray-100">
+              <div className="grid grid-cols-2 divide-x divide-border border-b border-border">
                 <div className="px-4 py-3 text-center">
-                  <p className="text-xs text-gray-400">Precio mínimo</p>
-                  <p className="font-bold text-green-600">{formatPrice(priceMin)}</p>
+                  <p className="text-xs text-muted">Precio mínimo</p>
+                  <p className="font-bold text-brand">{formatPrice(priceMin)}</p>
                 </div>
                 <div className="px-4 py-3 text-center">
-                  <p className="text-xs text-gray-400">Precio máximo</p>
-                  <p className="font-bold text-red-500">{formatPrice(priceMax)}</p>
+                  <p className="text-xs text-muted">Precio máximo</p>
+                  <p className="font-bold text-red-500 dark:text-red-400">{formatPrice(priceMax)}</p>
                 </div>
               </div>
             )}
@@ -283,8 +283,8 @@ export default function HistoryPage() {
               </div>
             ) : history.length === 0 ? (
               <div className="px-4 py-8 text-center">
-                <p className="text-sm text-gray-400">Sin registros de precios aún.</p>
-                <p className="text-xs text-gray-300 mt-1">Los precios se registran al finalizar una lista.</p>
+                <p className="text-sm text-muted">Sin registros de precios aún.</p>
+                <p className="text-xs text-muted mt-1">Los precios se registran al finalizar una lista.</p>
               </div>
             ) : (
               <ul>
@@ -292,11 +292,11 @@ export default function HistoryPage() {
                   <li
                     key={ph.id}
                     className={`flex items-center justify-between px-4 py-3 ${
-                      idx !== history.length - 1 ? 'border-b border-gray-50' : ''
+                      idx !== history.length - 1 ? 'border-b border-border/60' : ''
                     }`}
                   >
-                    <span className="text-sm text-gray-500">{formatDate(ph.recorded_at)}</span>
-                    <span className="font-semibold text-sm text-gray-800">
+                    <span className="text-sm text-muted">{formatDate(ph.recorded_at)}</span>
+                    <span className="font-semibold text-sm text-foreground">
                       {formatPrice(ph.price)}
                     </span>
                   </li>

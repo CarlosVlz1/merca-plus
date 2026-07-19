@@ -340,23 +340,23 @@ export default function ActiveListPage() {
       {/* Header + progress */}
       <div className="flex flex-col gap-2">
         <div className="flex items-center justify-between">
-          <h1 className="text-xl font-bold text-gray-900">Lista semanal</h1>
-          <span className="text-sm font-medium text-gray-500">
+          <h1 className="text-xl font-bold text-foreground">Lista semanal</h1>
+          <span className="text-sm font-medium text-muted">
             {checkedCount}/{total}
           </span>
         </div>
         {total > 0 && (
-          <div className="h-2 w-full overflow-hidden rounded-full bg-gray-100">
+          <div className="h-2 w-full overflow-hidden rounded-full bg-foreground/8">
             <div
-              className="h-full rounded-full bg-green-500 transition-all duration-300"
+              className="h-full rounded-full bg-brand transition-all duration-300"
               style={{ width: `${progress}%` }}
             />
           </div>
         )}
         {totalAmount > 0 && (
-          <div className="flex items-center justify-between rounded-xl bg-green-50 px-4 py-2.5">
-            <span className="text-sm text-green-700 font-medium">Total estimado</span>
-            <span className="text-base font-bold text-green-700">{formatCOP(totalAmount)}</span>
+          <div className="flex items-center justify-between rounded-xl bg-brand-light dark:bg-brand/15 px-4 py-2.5">
+            <span className="text-sm text-brand-dark font-medium">Total estimado</span>
+            <span className="text-base font-bold text-brand-dark">{formatCOP(totalAmount)}</span>
           </div>
         )}
       </div>
@@ -364,11 +364,11 @@ export default function ActiveListPage() {
       {state === 'error' && <Alert message={errorMsg} />}
 
       {/* Add item */}
-      <div className="flex gap-2 rounded-2xl bg-white p-3 shadow-sm border border-gray-100">
+      <div className="flex gap-2 rounded-2xl bg-surface p-3 shadow-sm border border-border">
         <select
           value={selectedItemId}
           onChange={(e) => setSelectedItemId(e.target.value)}
-          className="flex-1 min-w-0 rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-sm text-gray-700 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-500/20"
+          className="flex-1 min-w-0 rounded-xl border border-border-strong bg-surface px-3 py-2.5 text-sm text-foreground focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20"
         >
           <option value="">Agregar del catálogo…</option>
           {availableToAdd.map((ci) => (
@@ -392,10 +392,10 @@ export default function ActiveListPage() {
 
       {/* Checklist por categoría */}
       {Object.entries(byCategory).map(([cat, items]) => (
-        <div key={cat} className="rounded-2xl bg-white shadow-sm border border-gray-100 overflow-hidden">
-          <div className="flex items-center gap-2 px-4 py-2.5 bg-gray-50/80 border-b border-gray-100">
+        <div key={cat} className="rounded-2xl bg-surface shadow-sm border border-border overflow-hidden">
+          <div className="flex items-center gap-2 px-4 py-2.5 bg-foreground/[0.03] border-b border-border">
             <span className="text-base">{getCategoryEmoji(cat)}</span>
-            <span className="text-xs font-bold uppercase tracking-wide text-gray-500">{cat}</span>
+            <span className="text-xs font-bold uppercase tracking-wide text-muted">{cat}</span>
           </div>
           <ul>
             {items.map((li, idx) => (
@@ -403,8 +403,8 @@ export default function ActiveListPage() {
                 key={li.id}
                 className={cn(
                   'flex flex-col px-4 py-3 transition-colors gap-2',
-                  li.checked ? 'bg-green-50/40' : 'bg-white',
-                  idx !== items.length - 1 && 'border-b border-gray-50',
+                  li.checked ? 'bg-brand-light/40 dark:bg-brand/10' : 'bg-surface',
+                  idx !== items.length - 1 && 'border-b border-border/60',
                 )}
               >
                 {/* Row: checkbox / name / qty / delete */}
@@ -416,8 +416,8 @@ export default function ActiveListPage() {
                     className={cn(
                       'flex size-6 shrink-0 items-center justify-center rounded-full border-2 transition-all duration-150',
                       li.checked
-                        ? 'border-green-500 bg-green-500 text-white'
-                        : 'border-gray-300 hover:border-green-400',
+                        ? 'border-brand bg-brand text-white'
+                        : 'border-border-strong hover:border-brand/60',
                     )}
                   >
                     {li.checked && <CheckIcon size={12} />}
@@ -428,12 +428,12 @@ export default function ActiveListPage() {
                     <p
                       className={cn(
                         'text-sm font-medium leading-snug transition-all',
-                        li.checked ? 'line-through text-gray-400' : 'text-gray-800',
+                        li.checked ? 'line-through text-muted' : 'text-foreground',
                       )}
                     >
                       {li.item.name}
                       {li.item.unit && (
-                        <span className={cn('font-normal', li.checked ? 'text-gray-300' : 'text-gray-400')}>
+                        <span className={cn('font-normal', 'text-muted')}>
                           {' '}· {li.item.unit}
                         </span>
                       )}
@@ -446,20 +446,20 @@ export default function ActiveListPage() {
                       onClick={() => handleUpdateQuantity(li, -1)}
                       disabled={Number(li.quantity) <= 1}
                       aria-label="Disminuir cantidad"
-                      className="flex size-6 items-center justify-center rounded-full border border-gray-200 text-gray-400 hover:border-gray-300 hover:text-gray-600 disabled:opacity-30 transition-all text-sm font-medium leading-none"
+                      className="flex size-6 items-center justify-center rounded-full border border-border-strong text-muted hover:border-border-strong hover:text-foreground disabled:opacity-30 transition-all text-sm font-medium leading-none"
                     >
                       −
                     </button>
                     <span className={cn(
                       'min-w-6 text-center text-sm font-semibold tabular-nums',
-                      li.checked ? 'text-gray-300' : 'text-gray-700',
+                      li.checked ? 'text-muted' : 'text-foreground/80',
                     )}>
                       {Number(li.quantity)}
                     </span>
                     <button
                       onClick={() => handleUpdateQuantity(li, 1)}
                       aria-label="Aumentar cantidad"
-                      className="flex size-6 items-center justify-center rounded-full border border-gray-200 text-gray-400 hover:border-green-400 hover:text-green-600 transition-all text-sm font-medium leading-none"
+                      className="flex size-6 items-center justify-center rounded-full border border-border-strong text-muted hover:border-brand/60 hover:text-brand transition-all text-sm font-medium leading-none"
                     >
                       +
                     </button>
@@ -469,7 +469,7 @@ export default function ActiveListPage() {
                   <button
                     onClick={() => handleRemoveItem(li)}
                     aria-label="Quitar de la lista"
-                    className="shrink-0 rounded-lg p-1 text-gray-300 hover:bg-red-50 hover:text-red-400 transition-colors"
+                    className="shrink-0 rounded-lg p-1 text-muted hover:bg-red-500/10 hover:text-red-400 transition-colors"
                   >
                     <XIcon size={14} />
                   </button>
@@ -477,9 +477,9 @@ export default function ActiveListPage() {
 
                 {/* Price input — always visible */}
                 <div className="ml-9 flex items-center gap-2">
-                  <label className="text-xs text-gray-400 shrink-0">Precio:</label>
+                  <label className="text-xs text-muted shrink-0">Precio:</label>
                   <div className="relative flex-1 max-w-[140px]">
-                    <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs text-gray-400 pointer-events-none">
+                    <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs text-muted pointer-events-none">
                       $
                     </span>
                     <input
@@ -489,15 +489,15 @@ export default function ActiveListPage() {
                       value={priceInputs[li.id] ?? ''}
                       onChange={(e) => handlePriceChange(li.id, e.target.value)}
                       className={cn(
-                        'w-full rounded-lg border bg-white pl-5 pr-2 py-1.5 text-sm text-gray-700 focus:outline-none focus:ring-1 placeholder:text-gray-300',
+                        'w-full rounded-lg border bg-surface pl-5 pr-2 py-1.5 text-sm text-foreground focus:outline-none focus:ring-1 placeholder:text-muted',
                         li.price != null && li.price > 0
-                          ? 'border-green-300 focus:border-green-400 focus:ring-green-400/30'
-                          : 'border-gray-200 focus:border-green-400 focus:ring-green-400/30',
+                          ? 'border-brand/40 focus:border-brand/60 focus:ring-brand/30'
+                          : 'border-border-strong focus:border-brand/60 focus:ring-brand/30',
                       )}
                     />
                   </div>
                   {li.price != null && li.price > 0 && (
-                    <CheckIcon size={13} className="text-green-500 shrink-0" />
+                    <CheckIcon size={13} className="text-brand shrink-0" />
                   )}
                 </div>
               </li>
@@ -510,12 +510,12 @@ export default function ActiveListPage() {
       {listItems.length === 0 && lastClosedList && lastClosedList.itemCount > 0 && (
         <Link
           href="/history"
-          className="flex items-center gap-3 rounded-2xl border border-amber-100 bg-amber-50 px-4 py-3 text-sm text-amber-800 hover:bg-amber-100 transition-colors"
+          className="flex items-center gap-3 rounded-2xl border border-amber-100 dark:border-amber-500/30 bg-amber-50 dark:bg-amber-500/10 px-4 py-3 text-sm text-amber-800 dark:text-amber-300 hover:bg-amber-100 dark:hover:bg-amber-500/15 transition-colors"
         >
           <span className="text-xl shrink-0">📋</span>
           <div className="flex-1 min-w-0">
             <p className="font-medium">¿Buscas tu lista anterior?</p>
-            <p className="text-xs text-amber-600 mt-0.5">
+            <p className="text-xs text-amber-600 dark:text-amber-400 mt-0.5">
               Tenía {lastClosedList.itemCount} producto{lastClosedList.itemCount !== 1 ? 's' : ''}.
               Ver en Historial →
             </p>

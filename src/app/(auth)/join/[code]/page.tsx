@@ -46,9 +46,9 @@ export default function JoinPage() {
 
   if (!authed) {
     return (
-      <div className="rounded-2xl bg-white p-8 shadow-sm border border-gray-100 text-center">
+      <div className="rounded-2xl bg-surface p-8 shadow-sm border border-border text-center">
         <h2 className="text-lg font-semibold mb-2">Fuiste invitado a un hogar</h2>
-        <p className="text-sm text-gray-500 mb-6">
+        <p className="text-sm text-muted mb-6">
           Crea una cuenta o inicia sesión para unirte.
         </p>
         <Button
@@ -62,9 +62,9 @@ export default function JoinPage() {
   }
 
   return (
-    <div className="rounded-2xl bg-white p-8 shadow-sm border border-gray-100 text-center">
+    <div className="rounded-2xl bg-surface p-8 shadow-sm border border-border text-center">
       <h2 className="text-lg font-semibold mb-2">Unirte a un hogar</h2>
-      <p className="text-sm text-gray-500 mb-2">
+      <p className="text-sm text-muted mb-2">
         Código: <span className="font-mono font-bold">{code}</span>
       </p>
       {error && <Alert message={error} />}
