@@ -50,11 +50,11 @@ function ItemForm({ initial, onSave, onCancel, saving, error }: ItemFormProps) {
         required
       />
       <div className="flex flex-col gap-1.5">
-        <label className="text-sm font-semibold text-gray-700">Categoría</label>
+        <label className="text-sm font-semibold text-foreground">Categoría</label>
         <select
           value={category}
           onChange={(e) => setCategory(e.target.value)}
-          className="w-full rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-sm shadow-sm focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-500/20"
+          className="w-full rounded-xl border border-border-strong bg-surface px-3 py-2.5 text-sm shadow-sm focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20"
         >
           {CATEGORIES.map((c) => (
             <option key={c} value={c}>{getCategoryEmoji(c)} {c}</option>
@@ -77,7 +77,7 @@ function ItemForm({ initial, onSave, onCancel, saving, error }: ItemFormProps) {
             onChange={(e) => setPrice(e.target.value.replace(/[^0-9.,]/g, ''))}
             placeholder="0"
             inputMode="decimal"
-            startIcon={<span className="text-sm text-gray-400">$</span>}
+            startIcon={<span className="text-sm text-muted">$</span>}
           />
         </div>
       </div>
@@ -201,9 +201,9 @@ export default function CatalogPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-bold text-gray-900">Catálogo</h1>
+          <h1 className="text-xl font-bold text-foreground">Catálogo</h1>
           {state === 'ready' && (
-            <p className="text-sm text-gray-400">{items.length} producto{items.length !== 1 ? 's' : ''}</p>
+            <p className="text-sm text-muted">{items.length} producto{items.length !== 1 ? 's' : ''}</p>
           )}
         </div>
         {!showForm && !editItem && (
@@ -218,12 +218,12 @@ export default function CatalogPage() {
 
       {/* New item form */}
       {showForm && (
-        <div className="rounded-2xl bg-white p-5 shadow-sm border border-gray-100">
+        <div className="rounded-2xl bg-surface p-5 shadow-sm border border-border">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="font-semibold text-gray-800">Nuevo producto</h2>
+            <h2 className="font-semibold text-foreground">Nuevo producto</h2>
             <button
               onClick={() => { setShowForm(false); setFormError('') }}
-              className="rounded-lg p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+              className="rounded-lg p-1 text-muted hover:bg-foreground/8 hover:text-foreground"
             >
               <XIcon size={16} />
             </button>
@@ -249,17 +249,17 @@ export default function CatalogPage() {
 
       {/* Items by category */}
       {state === 'ready' && Object.entries(byCategory).map(([cat, catItems]) => (
-        <div key={cat} className="rounded-2xl bg-white shadow-sm border border-gray-100 overflow-hidden">
-          <div className="flex items-center gap-2 px-4 py-2.5 bg-gray-50/80 border-b border-gray-100">
+        <div key={cat} className="rounded-2xl bg-surface shadow-sm border border-border overflow-hidden">
+          <div className="flex items-center gap-2 px-4 py-2.5 bg-foreground/[0.03] border-b border-border">
             <span className="text-base">{getCategoryEmoji(cat)}</span>
-            <span className="text-xs font-bold uppercase tracking-wide text-gray-500">{cat}</span>
-            <span className="ml-auto text-xs text-gray-400">{catItems.length}</span>
+            <span className="text-xs font-bold uppercase tracking-wide text-muted">{cat}</span>
+            <span className="ml-auto text-xs text-muted">{catItems.length}</span>
           </div>
           <ul>
             {catItems.map((item, idx) => (
               <li
                 key={item.id}
-                className={cn('px-4 py-3', idx !== catItems.length - 1 && 'border-b border-gray-50')}
+                className={cn('px-4 py-3', idx !== catItems.length - 1 && 'border-b border-border/60')}
               >
                 {editItem?.id === item.id ? (
                   <div className="py-1">
@@ -274,12 +274,12 @@ export default function CatalogPage() {
                 ) : (
                   <div className="flex items-center justify-between gap-3">
                     <div className="min-w-0">
-                      <p className="font-medium text-sm text-gray-800 truncate">{item.name}</p>
-                      <p className="text-xs text-gray-400 mt-0.5">
+                      <p className="font-medium text-sm text-foreground truncate">{item.name}</p>
+                      <p className="text-xs text-muted mt-0.5">
                         {item.unit && <span>{item.unit}</span>}
                         {item.unit && item.last_price != null && <span> · </span>}
                         {item.last_price != null && (
-                          <span className="text-green-600 font-medium">
+                          <span className="text-brand font-medium">
                             ${Number(item.last_price).toLocaleString('es-CO')}
                           </span>
                         )}
@@ -289,14 +289,14 @@ export default function CatalogPage() {
                       <button
                         onClick={() => { setEditItem(item); setFormError('') }}
                         aria-label={`Editar ${item.name}`}
-                        className="rounded-lg p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors"
+                        className="rounded-lg p-1.5 text-muted hover:bg-foreground/8 hover:text-foreground transition-colors"
                       >
                         <EditIcon size={15} />
                       </button>
                       <button
                         onClick={() => handleDelete(item)}
                         aria-label={`Eliminar ${item.name}`}
-                        className="rounded-lg p-1.5 text-gray-400 hover:bg-red-50 hover:text-red-500 transition-colors"
+                        className="rounded-lg p-1.5 text-muted hover:bg-red-500/10 hover:text-red-500 transition-colors"
                       >
                         <TrashIcon size={15} />
                       </button>

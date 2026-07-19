@@ -24,7 +24,7 @@ function PasswordChecklist({ password }: { password: string }) {
       {PASSWORD_RULES.map((rule) => {
         const ok = rule.test(password)
         return (
-          <li key={rule.label} className={cn('flex items-center gap-1.5 text-xs', ok ? 'text-green-600' : 'text-gray-400')}>
+          <li key={rule.label} className={cn('flex items-center gap-1.5 text-xs', ok ? 'text-brand' : 'text-muted')}>
             <span className="shrink-0">{ok ? '✓' : '○'}</span>
             {rule.label}
           </li>
@@ -121,20 +121,20 @@ export default function LoginPage() {
         <div className="flex justify-center mb-4 drop-shadow-lg drop-shadow-green-600/30">
           <Logo size={64} />
         </div>
-        <h1 className="text-2xl font-bold tracking-tight text-gray-900">Merca+</h1>
-        <p className="mt-1 text-sm text-gray-500">
+        <h1 className="text-2xl font-bold tracking-tight text-foreground">Merca+</h1>
+        <p className="mt-1 text-sm text-muted">
           {mode === 'login' ? 'Bienvenido de vuelta' : 'Crea tu cuenta gratis'}
         </p>
       </div>
 
       {/* Card */}
-      <div className="rounded-2xl bg-white p-6 shadow-sm border border-gray-100">
+      <div className="rounded-2xl bg-surface p-6 shadow-sm border border-border">
         {registered ? (
           <div className="flex flex-col items-center gap-4 py-4 text-center">
             <span className="text-4xl">📬</span>
             <div>
-              <p className="font-semibold text-gray-800">¡Revisa tu correo!</p>
-              <p className="mt-1 text-sm text-gray-500">
+              <p className="font-semibold text-foreground">¡Revisa tu correo!</p>
+              <p className="mt-1 text-sm text-muted">
                 Enviamos un enlace de confirmación a <span className="font-medium">{email}</span>.
                 Confirma tu cuenta para ingresar.
               </p>
@@ -145,7 +145,7 @@ export default function LoginPage() {
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="flex flex-col gap-4" noValidate>
-            <h2 className="font-semibold text-gray-800">
+            <h2 className="font-semibold text-foreground">
               {mode === 'login' ? 'Iniciar sesión' : 'Crear cuenta'}
             </h2>
 
@@ -222,12 +222,12 @@ export default function LoginPage() {
       </div>
 
       {!registered && (
-        <p className="text-center text-sm text-gray-500">
+        <p className="text-center text-sm text-muted">
           {mode === 'login' ? '¿No tienes cuenta?' : '¿Ya tienes cuenta?'}{' '}
           <button
             type="button"
             onClick={switchMode}
-            className="font-semibold text-green-600 hover:underline"
+            className="font-semibold text-brand hover:underline"
           >
             {mode === 'login' ? 'Regístrate' : 'Inicia sesión'}
           </button>
