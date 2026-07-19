@@ -24,24 +24,24 @@ export default function IOSInstallBanner() {
 
   return (
     <div className="fixed bottom-20 left-4 right-4 z-50 max-w-sm mx-auto">
-      <div className="rounded-2xl bg-white border border-gray-100 shadow-xl p-4 flex gap-3">
+      <div className="rounded-2xl bg-surface border border-border shadow-xl p-4 flex gap-3">
         <div className="text-2xl shrink-0 mt-0.5">📲</div>
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-semibold text-gray-900">Instala Merca+</p>
-          <p className="text-xs text-gray-500 mt-0.5 leading-relaxed">
+          <p className="text-sm font-semibold text-foreground">Instala Merca+</p>
+          <p className="text-xs text-muted mt-0.5 leading-relaxed">
             Toca{' '}
-            <span className="inline-flex items-center gap-0.5 font-medium text-gray-700">
+            <span className="inline-flex items-center gap-0.5 font-medium text-foreground">
               <ShareIcon />
               Compartir
             </span>{' '}
             y luego{' '}
-            <span className="font-medium text-gray-700">"Agregar a pantalla de inicio"</span>
+            <span className="font-medium text-foreground">"Agregar a pantalla de inicio"</span>
           </p>
         </div>
         <button
           onClick={dismiss}
           aria-label="Cerrar"
-          className="shrink-0 text-gray-400 hover:text-gray-600 transition-colors self-start"
+          className="shrink-0 text-muted hover:text-foreground transition-colors self-start"
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
             <line x1="18" y1="6" x2="6" y2="18" />
@@ -51,7 +51,7 @@ export default function IOSInstallBanner() {
       </div>
       {/* Flecha apuntando hacia abajo hacia la barra de Safari */}
       <div className="flex justify-center mt-1">
-        <svg width="20" height="10" viewBox="0 0 20 10" fill="white" stroke="#e5e7eb" strokeWidth="1">
+        <svg width="20" height="10" viewBox="0 0 20 10" className="fill-surface" stroke="var(--color-border)" strokeWidth="1">
           <path d="M0 0 L10 10 L20 0Z" />
         </svg>
       </div>

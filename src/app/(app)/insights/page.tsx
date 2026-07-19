@@ -93,7 +93,7 @@ function BarChart({ data, color = '#16A34A' }: BarChartProps) {
             y1={y}
             x2={W - padR}
             y2={y}
-            stroke="#f1f5f9"
+            stroke="var(--color-border)"
             strokeWidth={1}
           />
         )
@@ -120,7 +120,7 @@ function BarChart({ data, color = '#16A34A' }: BarChartProps) {
               y={H - 6}
               textAnchor="middle"
               fontSize={9}
-              fill="#94a3b8"
+              fill="var(--color-muted)"
             >
               {d.label}
             </text>
@@ -174,7 +174,7 @@ function LineChart({ data, color = '#16A34A' }: LineChartProps) {
       {/* Points */}
       {pts.map((p, i) => (
         <g key={i}>
-          <circle cx={p.x} cy={p.y} r={3.5} fill="white" stroke={color} strokeWidth={2} />
+          <circle cx={p.x} cy={p.y} r={3.5} fill="var(--color-surface)" stroke={color} strokeWidth={2} />
           {/* X label — only first and last to avoid clutter */}
           {(i === 0 || i === pts.length - 1) && (
             <text
@@ -182,7 +182,7 @@ function LineChart({ data, color = '#16A34A' }: LineChartProps) {
               y={H - 6}
               textAnchor={i === 0 ? 'start' : 'end'}
               fontSize={9}
-              fill="#94a3b8"
+              fill="var(--color-muted)"
             >
               {p.label}
             </text>
@@ -199,14 +199,14 @@ function HBar({ label, value, max, color = '#16A34A' }: { label: string; value: 
   const pct = max > 0 ? (value / max) * 100 : 0
   return (
     <div className="flex items-center gap-2">
-      <span className="w-28 shrink-0 text-xs text-gray-600 truncate">{label}</span>
-      <div className="flex-1 h-2.5 rounded-full bg-gray-100 overflow-hidden">
+      <span className="w-28 shrink-0 text-xs text-muted truncate">{label}</span>
+      <div className="flex-1 h-2.5 rounded-full bg-foreground/8 overflow-hidden">
         <div
           className="h-full rounded-full transition-all duration-500"
           style={{ width: `${pct}%`, backgroundColor: color }}
         />
       </div>
-      <span className="w-20 shrink-0 text-right text-xs font-semibold text-gray-700">{formatCOP(value)}</span>
+      <span className="w-20 shrink-0 text-right text-xs font-semibold text-foreground/80">{formatCOP(value)}</span>
     </div>
   )
 }
@@ -230,16 +230,16 @@ function StatCard({
     <div className={cn(
       'flex flex-col gap-1 rounded-2xl p-4 border',
       highlight
-        ? 'bg-green-600 border-green-600 text-white'
-        : 'bg-white border-gray-100 shadow-sm',
+        ? 'bg-brand border-brand text-white'
+        : 'bg-surface border-border shadow-sm',
     )}>
       <span className="text-base">{emoji}</span>
-      <p className={cn('text-lg font-bold leading-tight', highlight ? 'text-white' : 'text-gray-900')}>
+      <p className={cn('text-lg font-bold leading-tight', highlight ? 'text-white' : 'text-foreground')}>
         {value}
       </p>
-      <p className={cn('text-xs', highlight ? 'text-green-100' : 'text-gray-500')}>{label}</p>
+      <p className={cn('text-xs', highlight ? 'text-white/80' : 'text-muted')}>{label}</p>
       {sub && (
-        <p className={cn('text-[11px] mt-0.5', highlight ? 'text-green-200' : 'text-gray-400')}>{sub}</p>
+        <p className={cn('text-[11px] mt-0.5', highlight ? 'text-white/70' : 'text-muted')}>{sub}</p>
       )}
     </div>
   )
@@ -250,7 +250,7 @@ function StatCard({
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <section className="flex flex-col gap-3">
-      <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide px-1">{title}</h2>
+      <h2 className="text-sm font-semibold text-muted uppercase tracking-wide px-1">{title}</h2>
       {children}
     </section>
   )
@@ -410,7 +410,7 @@ export default function InsightsPage() {
   if (state === 'empty') {
     return (
       <div className="py-4">
-        <h1 className="text-xl font-bold text-gray-900 mb-6">Insights</h1>
+        <h1 className="text-xl font-bold text-foreground mb-6">Insights</h1>
         <EmptyState
           emoji="📊"
           title="Sin datos todavía"
@@ -422,7 +422,7 @@ export default function InsightsPage() {
 
   return (
     <div className="flex flex-col gap-6 py-4">
-      <h1 className="text-xl font-bold text-gray-900">Insights</h1>
+      <h1 className="text-xl font-bold text-foreground">Insights</h1>
 
       {/* ── Stat cards ── */}
       <Section title="Resumen">
@@ -454,17 +454,17 @@ export default function InsightsPage() {
 
       {/* ── Monthly spend bar chart ── */}
       <Section title="Gasto mensual">
-        <div className="rounded-2xl bg-white border border-gray-100 shadow-sm p-4">
-          <p className="text-xs text-gray-400 mb-3">Últimos 6 meses</p>
+        <div className="rounded-2xl bg-surface border border-border shadow-sm p-4">
+          <p className="text-xs text-muted mb-3">Últimos 6 meses</p>
           {monthlyBarData.every((d) => d.value === 0) ? (
-            <p className="text-sm text-gray-400 text-center py-6">Sin datos en este período</p>
+            <p className="text-sm text-muted text-center py-6">Sin datos en este período</p>
           ) : (
             <BarChart data={monthlyBarData} />
           )}
           {/* Legend: max month */}
           {monthlyBarData.some((d) => d.value > 0) && (
-            <div className="mt-3 flex justify-between text-xs text-gray-400">
-              <span>Mes más alto: <strong className="text-gray-700">{
+            <div className="mt-3 flex justify-between text-xs text-muted">
+              <span>Mes más alto: <strong className="text-foreground/80">{
                 monthlyBarData.reduce((best, d) => d.value > best.value ? d : best, monthlyBarData[0]).label
               }</strong></span>
               <span>{formatCOP(Math.max(...monthlyBarData.map((d) => d.value)))}</span>
@@ -475,11 +475,11 @@ export default function InsightsPage() {
 
       {/* ── Price evolution line chart ── */}
       <Section title="Evolución de precios">
-        <div className="rounded-2xl bg-white border border-gray-100 shadow-sm p-4 flex flex-col gap-3">
+        <div className="rounded-2xl bg-surface border border-border shadow-sm p-4 flex flex-col gap-3">
           <select
             value={selectedItemId}
             onChange={(e) => setSelectedItemId(e.target.value)}
-            className="w-full rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-sm text-gray-700 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-500/20"
+            className="w-full rounded-xl border border-border-strong bg-surface px-3 py-2.5 text-sm text-foreground focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20"
           >
             <option value="">— Elige un producto —</option>
             {catalogItems.map((item) => (
@@ -488,11 +488,11 @@ export default function InsightsPage() {
           </select>
 
           {loadingHistory && (
-            <p className="text-sm text-gray-400 text-center py-4">Cargando...</p>
+            <p className="text-sm text-muted text-center py-4">Cargando...</p>
           )}
 
           {!loadingHistory && selectedItemId && priceLineData.length === 0 && (
-            <p className="text-sm text-gray-400 text-center py-4">
+            <p className="text-sm text-muted text-center py-4">
               Este producto no tiene historial de precios aún.
             </p>
           )}
@@ -500,16 +500,16 @@ export default function InsightsPage() {
           {!loadingHistory && priceLineData.length > 0 && (
             <>
               <LineChart data={priceLineData} />
-              <div className="flex justify-between text-xs text-gray-400 border-t border-gray-50 pt-2">
-                <span>Mín: <strong className="text-gray-700">{formatCOP(Math.min(...priceLineData.map((d) => d.value)))}</strong></span>
-                <span>Máx: <strong className="text-gray-700">{formatCOP(Math.max(...priceLineData.map((d) => d.value)))}</strong></span>
-                <span>Último: <strong className="text-green-600">{formatCOP(priceLineData[priceLineData.length - 1].value)}</strong></span>
+              <div className="flex justify-between text-xs text-muted border-t border-border/60 pt-2">
+                <span>Mín: <strong className="text-foreground/80">{formatCOP(Math.min(...priceLineData.map((d) => d.value)))}</strong></span>
+                <span>Máx: <strong className="text-foreground/80">{formatCOP(Math.max(...priceLineData.map((d) => d.value)))}</strong></span>
+                <span>Último: <strong className="text-brand">{formatCOP(priceLineData[priceLineData.length - 1].value)}</strong></span>
               </div>
             </>
           )}
 
           {!selectedItemId && (
-            <p className="text-sm text-gray-400 text-center py-4">
+            <p className="text-sm text-muted text-center py-4">
               Selecciona un producto para ver cómo ha cambiado su precio.
             </p>
           )}
@@ -519,7 +519,7 @@ export default function InsightsPage() {
       {/* ── Category breakdown ── */}
       {categoryData.length > 0 && (
         <Section title="Gasto por categoría">
-          <div className="rounded-2xl bg-white border border-gray-100 shadow-sm p-4 flex flex-col gap-3">
+          <div className="rounded-2xl bg-surface border border-border shadow-sm p-4 flex flex-col gap-3">
             {categoryData.map((d) => (
               <HBar
                 key={d.label}

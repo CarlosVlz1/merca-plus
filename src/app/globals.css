@@ -1,6 +1,14 @@
 @import "tailwindcss";
 
-@theme inline {
+/*
+ * Dark mode is attribute-based (`data-theme="dark"` on <html>) instead of the
+ * `prefers-color-scheme` media query default, so a user's explicit choice
+ * (persisted in localStorage, see src/contexts/theme-context.tsx) always wins.
+ * See: node_modules/next/dist/docs/01-app/02-guides/preventing-flash-before-hydration.md
+ */
+@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
+
+@theme {
   --color-background: #F7F8F5;
   --color-surface: #FFFFFF;
   --color-foreground: #1A1F16;
@@ -13,8 +21,25 @@
 
   --color-border: #E5E7EB;
   --color-border-strong: #D1D5DB;
+}
 
+@theme inline {
   --font-sans: var(--font-geist);
+}
+
+[data-theme='dark'] {
+  --color-background: #0E1210;
+  --color-surface: #171C19;
+  --color-foreground: #EDF1EC;
+  --color-muted: #8B9490;
+
+  --color-brand: #22C55E;
+  --color-brand-dark: #4ADE80;
+  --color-brand-light: rgb(34 197 94 / 0.16);
+  --color-brand-muted: rgb(34 197 94 / 0.28);
+
+  --color-border: #2A302C;
+  --color-border-strong: #3A4038;
 }
 
 html {
@@ -23,6 +48,11 @@ html {
   font-family: var(--font-sans), system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  color-scheme: light;
+}
+
+html[data-theme='dark'] {
+  color-scheme: dark;
 }
 
 body {

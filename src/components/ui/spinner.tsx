@@ -13,7 +13,7 @@ export default function Spinner({ size = 'md', className }: SpinnerProps) {
       role="status"
       aria-label="Cargando"
       className={cn(
-        'block animate-spin rounded-full border-2 border-green-200 border-t-green-600',
+        'block animate-spin rounded-full border-2 border-brand/25 border-t-brand',
         sizeMap[size],
         className,
       )}

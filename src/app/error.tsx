@@ -15,10 +15,10 @@ export default function GlobalError({
   }, [error])
 
   return (
-    <div className="flex min-h-dvh flex-col items-center justify-center bg-[#F7F8F5] px-4 text-center">
+    <div className="flex min-h-dvh flex-col items-center justify-center bg-background px-4 text-center">
       <div className="text-5xl mb-4">⚠️</div>
-      <h1 className="text-xl font-bold text-gray-900 mb-2">Algo salió mal</h1>
-      <p className="text-sm text-gray-500 mb-6 max-w-xs">
+      <h1 className="text-xl font-bold text-foreground mb-2">Algo salió mal</h1>
+      <p className="text-sm text-muted mb-6 max-w-xs">
         Ocurrió un error inesperado. Puedes intentar de nuevo o volver al inicio.
       </p>
       <div className="flex gap-3">
@@ -30,7 +30,7 @@ export default function GlobalError({
         </Button>
       </div>
       {error.digest && (
-        <p className="mt-6 text-xs text-gray-300 font-mono">ID: {error.digest}</p>
+        <p className="mt-6 text-xs text-muted font-mono">ID: {error.digest}</p>
       )}
     </div>
   )

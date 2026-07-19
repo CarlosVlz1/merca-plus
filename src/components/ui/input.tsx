@@ -32,13 +32,13 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
     return (
       <div className="flex flex-col gap-1.5">
         {label && (
-          <label htmlFor={inputId} className="text-sm font-semibold text-gray-700">
+          <label htmlFor={inputId} className="text-sm font-semibold text-foreground">
             {label}
           </label>
         )}
         <div className="relative">
           {startIcon && (
-            <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+            <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted">
               {startIcon}
             </span>
           )}
@@ -47,16 +47,16 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
             id={inputId}
             type={isPassword && showPassword ? 'text' : type}
             className={cn(
-              'w-full rounded-xl border bg-white py-2.5 text-sm text-gray-900',
-              'placeholder:text-gray-400 shadow-sm',
+              'w-full rounded-xl border bg-surface py-2.5 text-sm text-foreground',
+              'placeholder:text-muted shadow-sm',
               'transition-colors duration-150',
-              'focus:outline-none focus:ring-2 focus:ring-green-500/25 focus:border-green-500',
-              'disabled:bg-gray-50 disabled:text-gray-400',
+              'focus:outline-none focus:ring-2 focus:ring-brand/25 focus:border-brand',
+              'disabled:bg-foreground/5 disabled:text-muted',
               startIcon ? 'pl-9' : 'pl-3',
               isPassword ? 'pr-10' : 'pr-3',
               error
-                ? 'border-red-400 focus:border-red-400 focus:ring-red-400/20'
-                : 'border-gray-200',
+                ? 'border-red-400 dark:border-red-500/60 focus:border-red-400 focus:ring-red-400/20'
+                : 'border-border-strong',
               className,
             )}
             {...props}
@@ -66,14 +66,14 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
               type="button"
               onClick={() => setShowPassword((v) => !v)}
               aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted hover:text-foreground transition-colors"
             >
               <EyeIcon open={showPassword} />
             </button>
           )}
         </div>
-        {hint && !error && <p className="text-xs text-gray-400">{hint}</p>}
-        {error && <p className="text-xs text-red-600 font-medium">{error}</p>}
+        {hint && !error && <p className="text-xs text-muted">{hint}</p>}
+        {error && <p className="text-xs text-red-600 dark:text-red-400 font-medium">{error}</p>}
       </div>
     )
   },
