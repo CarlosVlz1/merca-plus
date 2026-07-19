@@ -50,16 +50,16 @@ export default function AndroidInstallBanner() {
 
   return (
     <div className="fixed bottom-20 left-4 right-4 z-50 max-w-sm mx-auto">
-      <div className="rounded-2xl bg-white border border-gray-100 shadow-xl p-4 flex gap-3 items-start">
+      <div className="rounded-2xl bg-surface border border-border shadow-xl p-4 flex gap-3 items-start">
         <div className="text-2xl shrink-0 mt-0.5">📲</div>
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-semibold text-gray-900">Instala Merca+</p>
-          <p className="text-xs text-gray-500 mt-0.5 leading-relaxed">
+          <p className="text-sm font-semibold text-foreground">Instala Merca+</p>
+          <p className="text-xs text-muted mt-0.5 leading-relaxed">
             Agrégala a tu pantalla de inicio para acceder más rápido.
           </p>
           <button
             onClick={handleInstall}
-            className="mt-2.5 rounded-xl bg-green-600 px-4 py-1.5 text-xs font-semibold text-white hover:bg-green-700 transition-colors"
+            className="mt-2.5 rounded-xl bg-brand px-4 py-1.5 text-xs font-semibold text-white hover:bg-brand-dark transition-colors"
           >
             Instalar
           </button>
@@ -67,7 +67,7 @@ export default function AndroidInstallBanner() {
         <button
           onClick={dismiss}
           aria-label="Cerrar"
-          className="shrink-0 text-gray-400 hover:text-gray-600 transition-colors"
+          className="shrink-0 text-muted hover:text-foreground transition-colors"
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
             <line x1="18" y1="6" x2="6" y2="18" />

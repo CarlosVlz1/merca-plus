@@ -7,10 +7,10 @@ interface AlertProps {
 }
 
 const variantStyles = {
-  error:   { container: 'bg-red-50 border-red-200',    text: 'text-red-700',    icon: '⚠️' },
-  success: { container: 'bg-green-50 border-green-200', text: 'text-green-700',  icon: '✓' },
-  warning: { container: 'bg-amber-50 border-amber-200', text: 'text-amber-700',  icon: '⚡' },
-  info:    { container: 'bg-blue-50 border-blue-200',   text: 'text-blue-700',   icon: 'ℹ' },
+  error:   { container: 'bg-red-50 dark:bg-red-500/10 border-red-200 dark:border-red-500/30',       text: 'text-red-700 dark:text-red-400',     icon: '⚠️' },
+  success: { container: 'bg-green-50 dark:bg-green-500/10 border-green-200 dark:border-green-500/30', text: 'text-green-700 dark:text-green-400', icon: '✓' },
+  warning: { container: 'bg-amber-50 dark:bg-amber-500/10 border-amber-200 dark:border-amber-500/30', text: 'text-amber-700 dark:text-amber-400', icon: '⚡' },
+  info:    { container: 'bg-blue-50 dark:bg-blue-500/10 border-blue-200 dark:border-blue-500/30',     text: 'text-blue-700 dark:text-blue-400',   icon: 'ℹ' },
 }
 
 export default function Alert({ message, variant = 'error', className }: AlertProps) {
